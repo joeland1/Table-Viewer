@@ -1,1 +1,4 @@
 Makefile*
+.qmake.stash
+main
+a.out
