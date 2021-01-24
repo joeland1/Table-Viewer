@@ -4,34 +4,42 @@
 
 #include <QHBoxLayout>
 #include <QWidget>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+
+#include <QMessageBox>
+
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+
+#include <QLabel>
 
 Launch::Launch(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
 
-  /*
-  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "bot");
-  db.setForwardOnly(true);
-  db.setDatabaseName("name_for_now.db");
+  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
+  db.setDatabaseName("lauch.db");
 
   if(db.open())
   {
-    query.exec("SELECT count(*) FROM sqlite_master WHERE TYPE='table';");
-    int number_of_tables =  query.next().value(0);
-
-    for(int i=0;i<number_of_tables;i++)
+    QSqlQuery query(QSqlDatabase::database("test"));
+    query.exec("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';");
+    query.next();
+    setWindowTitle(query.value(0).toString());
+    /*for(int i=0;i<number_of_tables;i++)
     {
 
-    }
+    }*/
     //QSqlRecord rec = q.record();
   }
   else
-    QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);*/
+  {
+    QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
+  }
 
   QTreeWidgetItem *header = new QTreeWidgetItem();
-    header->setText(0,"ez");
+    header->setText(0, "ez");
   QTreeWidgetItem *sub = new QTreeWidgetItem();
     sub->setText(0,"sub");
 
