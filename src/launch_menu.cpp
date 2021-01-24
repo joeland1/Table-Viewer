@@ -11,6 +11,7 @@ Launch::Launch(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
 
+  /*
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "bot");
   db.setForwardOnly(true);
   db.setDatabaseName("name_for_now.db");
@@ -27,19 +28,19 @@ Launch::Launch(QWidget *parent):QWidget(parent)
     //QSqlRecord rec = q.record();
   }
   else
-    QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
+    QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);*/
 
   QTreeWidgetItem *header = new QTreeWidgetItem();
-    item->setText(0,"ez");
+    header->setText(0,"ez");
   QTreeWidgetItem *sub = new QTreeWidgetItem();
     sub->setText(0,"sub");
 
-  item->addChild(sub);
+  header->addChild(sub);
 
   QTreeWidget *navigator = new QTreeWidget();
     navigator->setFrameShape(QFrame::NoFrame);
     navigator->setMaximumWidth(100);
-    navigator->insertTopLevelItem(0, item);
+    navigator->insertTopLevelItem(0, header);
 
   layout->setContentsMargins(0,0,0,0);
   layout->addWidget(navigator);

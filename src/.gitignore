@@ -2,3 +2,5 @@ Makefile*
 .qmake.stash
 main
 a.out
+release/*
+debug/*
