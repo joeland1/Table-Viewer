@@ -1,6 +1,4 @@
 #include "launch_menu.h"
-//#include "TableWidget.h"
-//#include "QButtonTreeWidget.h"
 
 #include <QHBoxLayout>
 #include <QWidget>
@@ -18,15 +16,36 @@ Launch::Launch(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
 
+  QTreeWidget *navigator = new QTreeWidget();
+    navigator->setFrameShape(QFrame::NoFrame);
+    //navigator->setMaximumWidth(100);
+
+  layout->setContentsMargins(0,0,0,0);
+  layout->addWidget(navigator);
+
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
   db.setDatabaseName("lauch.db");
 
   if(db.open())
   {
     QSqlQuery query(QSqlDatabase::database("test"));
-    query.exec("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';");
+    query.exec("SELECT count(*) FROM sqlite_master WHERE type = 'table'");
     query.next();
-    setWindowTitle(query.value(0).toString());
+    int number_of_tables = query.value(0).toInt();
+    query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
+
+    QTreeWidgetItem *header = new QTreeWidgetItem();
+      header->setText(0, "stem");
+
+    while(query.next())
+    {
+      QTreeWidgetItem *sub = new QTreeWidgetItem();
+      sub->setText(0, query.value(0).toString());
+      header->addChild(sub);
+    }
+    navigator->insertTopLevelItem(0, header);
+    layout->addWidget(navigator);
+
     /*for(int i=0;i<number_of_tables;i++)
     {
 
@@ -38,19 +57,5 @@ Launch::Launch(QWidget *parent):QWidget(parent)
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
   }
 
-  QTreeWidgetItem *header = new QTreeWidgetItem();
-    header->setText(0, "ez");
-  QTreeWidgetItem *sub = new QTreeWidgetItem();
-    sub->setText(0,"sub");
-
-  header->addChild(sub);
-
-  QTreeWidget *navigator = new QTreeWidget();
-    navigator->setFrameShape(QFrame::NoFrame);
-    navigator->setMaximumWidth(100);
-    navigator->insertTopLevelItem(0, header);
-
-  layout->setContentsMargins(0,0,0,0);
-  layout->addWidget(navigator);
   setLayout(layout);
 }
