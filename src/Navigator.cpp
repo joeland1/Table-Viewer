@@ -12,16 +12,16 @@
 
 #include <QLabel>
 
-Launch::Launch(QWidget *parent):QWidget(parent)
+Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
 
-  QTreeWidget *navigator = new QTreeWidget();
-    navigator->setFrameShape(QFrame::NoFrame);
+  QTreeWidget *top = new QTreeWidget();
+    top->setFrameShape(QFrame::NoFrame);
     //navigator->setMaximumWidth(100);
 
   layout->setContentsMargins(0,0,0,0);
-  layout->addWidget(navigator);
+  layout->addWidget(top);
 
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
   db.setDatabaseName("lauch.db");
@@ -35,7 +35,7 @@ Launch::Launch(QWidget *parent):QWidget(parent)
     query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
-      header->setText(0, "stem");
+      header->setText(0, "databse name:connection type");
 
     while(query.next())
     {
@@ -43,14 +43,8 @@ Launch::Launch(QWidget *parent):QWidget(parent)
       sub->setText(0, query.value(0).toString());
       header->addChild(sub);
     }
-    navigator->insertTopLevelItem(0, header);
-    layout->addWidget(navigator);
-
-    /*for(int i=0;i<number_of_tables;i++)
-    {
-
-    }*/
-    //QSqlRecord rec = q.record();
+    top->insertTopLevelItem(0, header);
+    layout->addWidget(top);
   }
   else
   {

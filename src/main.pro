@@ -12,11 +12,11 @@ CONFIG += c++17 \
 
 SOURCES += \
     main.cpp \
-    launch_menu.cpp \
+    Navigator.cpp \
     TableWidget.cpp \
 
 HEADERS += \
-    launch_menu.h \
+    Navigator.h \
     TableWidget.h \
 
 FORMS +=
