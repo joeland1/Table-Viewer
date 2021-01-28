@@ -8,7 +8,6 @@ int main(int argc, char *argv[]) {
   Launch window;
 
   window.resize(250, 150);
-  window.setWindowTitle("Joe Bot");
   window.show();
 
   return app.exec();
