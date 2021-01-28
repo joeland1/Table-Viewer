@@ -1,37 +1,37 @@
 #include "TableWidget.h"
 
-#include <QLabel>
 #include <QLineEdit>
 #include <QGridLayout>
-#include <QIntValidator>
+
+//sququery and sqldb should be removed soon
+#include <QSqlQuery>
+#include <QSqlDatabase>
 
 TableWidget::TableWidget(QWidget *parent):QWidget(parent)
 {
-  QGridLayout *main_layout = new QGridLayout;
-  QGridLayout *rpc_block = new QGridLayout;
-  QGridLayout *features = new QGridLayout;
+  table_data = new QGridLayout();
+  //each cell is QLineEdit so that user can change values
 
-  main_layout->addLayout(rpc_block,0,0);
-  main_layout->addLayout(features,1,0);
+  //these values will need to be passed during construction, fix.
+  //also need to get the databse names somehow before contsruction
+  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
+  db.setDatabaseName("lauch.db");
 
-  QLabel *rpc_text = new QLabel("RPC User");
-  QLineEdit *rpc_user_fill = new QLineEdit("");
-  rpc_block->addWidget(rpc_text,0,0,1,1);
-  rpc_block->addWidget(rpc_user_fill,0,1,1,1);
+  QSqlQuery query_pending(QSqlDatabase::database("test"));
+  query_pending.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
 
-  QLabel *rpc_port = new QLabel("RPC Password");
-  QLineEdit *rpc_port_fill = new QLineEdit("");
-  rpc_block->addWidget(rpc_port,1,0,1,1);
-  rpc_block->addWidget(rpc_port_fill,1,1,1,1);
-
-  QLabel *rpc_pw = new QLabel("RPC Port");
-  QLineEdit *rpc_pw_fill = new QLineEdit("");
-  rpc_pw_fill->setValidator( new QIntValidator(0, 99999, this));
-  rpc_block->addWidget(rpc_pw,2,0,1,1);
-  rpc_block->addWidget(rpc_pw_fill,2,1,1,1);
-
-  QLabel *faucet = new QLabel("test");
-  features->addWidget(faucet);
-
-  this->setLayout(main_layout);
+  if(db.open())
+  {
+    QSqlQuery query(QSqlDatabase::databse("test"));
+    while(query_pending.next())
+    {
+      query.exec("SELECT * FROM "+query_pending.value(0).toString());
+      while(query.next())
+      {
+        table_data
+      }
+    }
+  }
+  else
+    QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
 }

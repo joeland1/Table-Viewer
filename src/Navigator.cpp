@@ -45,6 +45,8 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     }
     top->insertTopLevelItem(0, header);
     layout->addWidget(top);
+
+    db.close()
   }
   else
   {

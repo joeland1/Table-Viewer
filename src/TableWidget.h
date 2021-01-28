@@ -1,4 +1,5 @@
 #include <QWidget>
+#include <QGridLayout>
 
 class TableWidget : public QWidget {
 
@@ -9,5 +10,5 @@ class TableWidget : public QWidget {
   private slots:
 
   private:
-
+    QGridLayout *table_data;
 };
