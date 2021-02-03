@@ -1,4 +1,5 @@
 #include <QWidget>
+#include <QStackedWidget>
 
 class Launch : public QWidget {
 
@@ -8,5 +9,7 @@ class Launch : public QWidget {
     Launch(QWidget *parent = nullptr);
 
   private slots:
+
   private:
+      QStackedWidget *table_view_qstackedwidget;
 };
