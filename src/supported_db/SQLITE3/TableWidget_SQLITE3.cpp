@@ -7,7 +7,7 @@
 #include <QSqlQuery>
 #include <QSqlDatabase>
 
-TableWidget::TableWidget(QWidget *parent):QWidget(parent)
+TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):QWidget(parent)
 {
   table_data = new QGridLayout();
   //each cell is QLineEdit so that user can change values
@@ -25,10 +25,27 @@ TableWidget::TableWidget(QWidget *parent):QWidget(parent)
     QSqlQuery query(QSqlDatabase::databse("test"));
     while(query_pending.next())
     {
-      query.exec("SELECT * FROM "+query_pending.value(0).toString());
+      query.prepare("SELECT * FROM ?;");
+      query.bindValue(query_pending.value(0).toString());
+      query.exec();
+
+      int number_of_rows=query.size();
+
       while(query.next())
       {
-        table_data
+        for(int i=0;i<=number_of_rows;i++)
+        {
+          if(i==0)
+          {
+            QLineEdit *data_entry = new QLineEdit();
+            data_entry->setText(query.value(i).toString());
+            table_data->addWidget(,0,table_data->rowCount());
+          }
+          else
+          {
+
+          }
+        }
       }
     }
   }

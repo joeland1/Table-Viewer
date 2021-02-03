@@ -29,9 +29,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   if(db.open())
   {
     QSqlQuery query(QSqlDatabase::database("test"));
-    query.exec("SELECT count(*) FROM sqlite_master WHERE type = 'table'");
-    query.next();
-    int number_of_tables = query.value(0).toInt();
     query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
 
     QTreeWidgetItem *header = new QTreeWidgetItem();

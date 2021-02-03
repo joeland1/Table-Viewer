@@ -6,9 +6,10 @@ class TableWidget : public QWidget {
   Q_OBJECT
 
   public:
-    TableWidget(QWidget *parent = nullptr);
+    TableWidget_SQLITE3(QWidget *parent = nullptr);
   private slots:
 
   private:
     QGridLayout *table_data;
+    QString file_location;
 };
