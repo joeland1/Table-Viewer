@@ -25,7 +25,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     //navigator->setMaximumWidth(100);
 
   layout->setContentsMargins(0,0,0,0);
-<<<<<<< HEAD:src/launch_menu.cpp
 
   table_view_qstackedwidget = new QStackedWidget;
   QWidget *x = new QWidget;
@@ -33,9 +32,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   main_label->setText("1");
   table_view_qstackedwidget->addWidget(x);
 
-=======
-  layout->addWidget(top);
->>>>>>> c184a7e3422e32742169e729cdce349a4c86b757:src/Navigator.cpp
 
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
   db.setDatabaseName("lauch.db");
@@ -45,13 +41,8 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     QSqlQuery query(QSqlDatabase::database("test"));
     query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
 
-<<<<<<< HEAD:src/launch_menu.cpp
-    QTreeWidgetItem *header = new QTreeWidgetItem;
-      header->setText(0, "stem");
-=======
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
->>>>>>> c184a7e3422e32742169e729cdce349a4c86b757:src/Navigator.cpp
 
     while(query.next())
     {
@@ -59,11 +50,10 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       QString name = query.value(0).toString();
       sub->setText(0, name);
       header->addChild(sub);
-      TableWidget *table_layout = new TableWidget;
+      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3;
       table_layout->setObjectName(name);
       table_view_qstackedwidget->addWidget(table_layout);
     }
-<<<<<<< HEAD:src/launch_menu.cpp
     navigator->insertTopLevelItem(0, header);
 
     connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
@@ -74,12 +64,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->addWidget(navigator);
     layout->addWidget(table_view_qstackedwidget);
     setLayout(layout);
-=======
-    top->insertTopLevelItem(0, header);
-    layout->addWidget(top);
-
-    db.close()
->>>>>>> c184a7e3422e32742169e729cdce349a4c86b757:src/Navigator.cpp
   }
   else
   {

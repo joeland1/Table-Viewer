@@ -1,7 +1,9 @@
 #include <QWidget>
 #include <QGridLayout>
 
-class TableWidget : public QWidget {
+#include "supported_db/master-widget/TableWidget.h"
+
+class TableWidget : public TableWidget {
 
   Q_OBJECT
 
@@ -10,6 +12,5 @@ class TableWidget : public QWidget {
   private slots:
 
   private:
-    QGridLayout *table_data;
-    QString file_location;
+    QString *file_location;
 };
