@@ -12,10 +12,6 @@
 
 TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):TableWidget_Master(parent)
 {
-  QLabel *x = new QLabel(this);
-  x->setText("1");
-
-  /*
   //each cell is QLineEdit so that user can change values
 
   //these values will need to be passed during construction, fix.
@@ -50,15 +46,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):TableWidget_Master(par
   }
   else
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
-    */
 }
-
-bool TableWidget_SQLITE3::load_data()
+std::string TableWidget_SQLITE3::get()
 {
-  return true;
-}
-
-bool TableWidget_SQLITE3::set_table_data()
-{
-  return true;
+  return TableWidget_Master::get();
 }

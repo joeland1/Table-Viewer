@@ -10,17 +10,16 @@ CONFIG += c++17 \
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-VPATH += "$$PWD/supported_db"
-
 SOURCES += \
     main.cpp \
     Navigator.cpp \
-    "SQLITE3/TableWidget_SQLITE3.cpp"
+    "supported_db/master-widget/TableWidget_Master.cpp" \
+    "supported_db/SQLITE3/TableWidget_SQLITE3.cpp"
 
 HEADERS += \
     Navigator.h \
-    "master-widget/TableWidget_Master.h" \
-    "SQLITE3/TableWidget_SQLITE3.h"
+    "supported_db/master-widget/TableWidget_Master.h" \
+    "supported_db/SQLITE3/TableWidget_SQLITE3.h"
 
 FORMS +=
 

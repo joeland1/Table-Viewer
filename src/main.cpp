@@ -1,11 +1,11 @@
 #include <QApplication>
-#include "launch_menu.h"
+#include "Navigator.h"
 
 int main(int argc, char *argv[]) {
 
   QApplication app(argc, argv);
 
-  Launch window;
+  Navigator window;
 
   window.resize(250, 150);
   window.show();

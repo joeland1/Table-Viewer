@@ -10,7 +10,10 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
 
   public:
     TableWidget_SQLITE3(QWidget *parent = nullptr);
+    std::string get();
+    //bool set_login();
   private slots:
+    //bool load_data();
 
   private:
     QString *file_location;
