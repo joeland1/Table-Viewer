@@ -50,7 +50,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       QString name = query.value(0).toString();
       sub->setText(0, name);
       header->addChild(sub);
-      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name);
+      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3;
       table_layout->setObjectName(name);
       table_view_qstackedwidget->addWidget(table_layout);
     }

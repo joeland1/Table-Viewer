@@ -1,4 +1,4 @@
-#include "supported_db/master-widget/TableWidget_Master.h"
+#include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
 
 #include <QLineEdit>
 #include <QGridLayout>
@@ -8,11 +8,13 @@
 #include <QSqlDatabase>
 #include <QString>
 
-TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent, QString& name):TableWidget_Master(parent)
-{
-  new QLabel(name,this);
+#include <QLabel>
 
-  table_data = new QGridLayout();
+TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):TableWidget_Master(parent)
+{
+  QLabel *x = new QLabel(this);
+  x->setText("1");
+
   /*
   //each cell is QLineEdit so that user can change values
 
@@ -52,6 +54,11 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent, QString& name):TableWi
 }
 
 bool TableWidget_SQLITE3::load_data()
+{
+  return true;
+}
+
+bool TableWidget_SQLITE3::set_table_data()
 {
   return true;
 }

@@ -9,7 +9,7 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
   Q_OBJECT
 
   public:
-    TableWidget_SQLITE3(QWidget *parent = nullptr, QString& name);
+    TableWidget_SQLITE3(QWidget *parent = nullptr);
   private slots:
 
   private:
