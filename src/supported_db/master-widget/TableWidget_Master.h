@@ -1,14 +1,16 @@
 #include <QWidget>
 #include <QGridLayout>
 
-class TableWidget : public QWidget {
+class TableWidget_Master : public QWidget {
 
   Q_OBJECT
 
   public:
-    TableWidget(QWidget *parent = nullptr);
+    virtual bool set_connnection();
+    
   private slots:
-    bool load_data();
+    virtual bool load_data();
+
   private:
     QGridLayout *table_data;
 };

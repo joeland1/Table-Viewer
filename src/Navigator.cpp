@@ -1,5 +1,5 @@
-#include "launch_menu.h"
-#include "TableWidget.h"
+#include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
+#include "Navigator.h"
 
 #include <QHBoxLayout>
 #include <QWidget>
@@ -20,8 +20,8 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
 
-  QTreeWidget *top = new QTreeWidget();
-    top->setFrameShape(QFrame::NoFrame);
+  QTreeWidget *navigator = new QTreeWidget();
+    navigator->setFrameShape(QFrame::NoFrame);
     //navigator->setMaximumWidth(100);
 
   layout->setContentsMargins(0,0,0,0);
@@ -50,14 +50,14 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       QString name = query.value(0).toString();
       sub->setText(0, name);
       header->addChild(sub);
-      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3;
+      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name);
       table_layout->setObjectName(name);
       table_view_qstackedwidget->addWidget(table_layout);
     }
     navigator->insertTopLevelItem(0, header);
 
     connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
-      TableWidget *target_widget = table_view_qstackedwidget->findChild<TableWidget*>(item->text(0));
+      TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->text(0));
       table_view_qstackedwidget->setCurrentWidget(target_widget);
     });
 

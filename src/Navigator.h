@@ -1,12 +1,12 @@
 #include <QWidget>
 #include <QStackedWidget>
 
-class Launch : public QWidget {
+class Navigator : public QWidget {
 
   Q_OBJECT
 
   public:
-    Launch(QWidget *parent = nullptr);
+    Navigator(QWidget *parent = nullptr);
 
   private slots:
 

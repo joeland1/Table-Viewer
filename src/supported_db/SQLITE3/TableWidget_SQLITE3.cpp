@@ -1,4 +1,4 @@
-#include "supported_db/master-widget/TableWidget.h"
+#include "supported_db/master-widget/TableWidget_Master.h"
 
 #include <QLineEdit>
 #include <QGridLayout>
@@ -6,10 +6,14 @@
 //sququery and sqldb should be removed soon
 #include <QSqlQuery>
 #include <QSqlDatabase>
+#include <QString>
 
-TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):TableWidget(parent)
+TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent, QString& name):TableWidget_Master(parent)
 {
+  new QLabel(name,this);
+
   table_data = new QGridLayout();
+  /*
   //each cell is QLineEdit so that user can change values
 
   //these values will need to be passed during construction, fix.
@@ -44,4 +48,10 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QWidget *parent):TableWidget(parent)
   }
   else
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
+    */
+}
+
+bool TableWidget_SQLITE3::load_data()
+{
+  return true;
 }
