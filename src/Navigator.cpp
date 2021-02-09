@@ -55,7 +55,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3;
       table_layout->setObjectName(QString::fromStdString(table_layout->get()));
       sub->setData(0,Qt::UserRole,QString::fromStdString(table_layout->get()));
-      setWindowTitle(QString::fromStdString(table_layout->get()));
       table_view_qstackedwidget->addWidget(table_layout);
     }
     navigator->insertTopLevelItem(0, header);
@@ -63,7 +62,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
       TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(0,Qt::UserRole).toString());
       table_view_qstackedwidget->setCurrentWidget(target_widget);
-      setWindowTitle(item->data(0,Qt::UserRole).toString());
     });
 
     layout->addWidget(navigator);
