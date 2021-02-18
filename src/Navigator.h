@@ -1,4 +1,3 @@
-#include <QWidget>
 #include <QStackedWidget>
 
 class Navigator : public QWidget {

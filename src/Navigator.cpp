@@ -21,18 +21,19 @@
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(0);
 
   QTreeWidget *navigator = new QTreeWidget();
     navigator->setFrameShape(QFrame::NoFrame);
     //navigator->setMaximumWidth(100);
-
-  layout->setContentsMargins(0,0,0,0);
 
   table_view_qstackedwidget = new QStackedWidget;
   QWidget *x = new QWidget;
   QLabel *main_label = new QLabel(x);
   main_label->setText("1");
   table_view_qstackedwidget->addWidget(x);
+    table_view_qstackedwidget->setContentsMargins(0,0,0,0);
 
 
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
@@ -45,6 +46,9 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
+      QWidget *test = new QWidget();
+      test->addWidget(new QLabel("some info goes here"));
+      header->setData();
 
     while(query.next())
     {
@@ -53,6 +57,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       sub->setText(0, name);
       header->addChild(sub);
       TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name);
+        table_layout->setContentsMargins(0,0,0,0);
       table_layout->setObjectName(QString::fromStdString(table_layout->get()));
       sub->setData(0,Qt::UserRole,QString::fromStdString(table_layout->get()));
       table_view_qstackedwidget->addWidget(table_layout);
