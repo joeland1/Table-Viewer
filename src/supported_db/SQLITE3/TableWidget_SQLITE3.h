@@ -10,7 +10,7 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
   Q_OBJECT
 
   public:
-    TableWidget_SQLITE3(QString table_name = "init", QWidget *parent = nullptr);
+    TableWidget_SQLITE3(QString table_name = nullptr, QWidget *parent = nullptr);
     //bool set_login();
   private slots:
     //bool load_data();
