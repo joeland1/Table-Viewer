@@ -1,4 +1,5 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
+#include "supported_db/SQLITE3/Overview_SQLITE3.h"
 #include "Navigator.h"
 
 #include <QHBoxLayout>
@@ -16,7 +17,7 @@
 
 #include <QLabel>
 
-
+#include <typeinfo>
 
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
@@ -46,9 +47,11 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
-      QWidget *test = new QWidget();
-      test->addWidget(new QLabel("some info goes here"));
-      header->setData();
+      Overview_SQLITE3 *overview_tab = new Overview_SQLITE3();
+      table_view_qstackedwidget->addWidget(overview_tab);
+      overview_tab->setObjectName(QString::fromStdString(overview_tab->get()));
+      header->setData(0,Qt::UserRole,0);
+      header->setData(1,Qt::UserRole,QString::fromStdString(overview_tab->get()));
 
     while(query.next())
     {
@@ -59,14 +62,25 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name);
         table_layout->setContentsMargins(0,0,0,0);
       table_layout->setObjectName(QString::fromStdString(table_layout->get()));
-      sub->setData(0,Qt::UserRole,QString::fromStdString(table_layout->get()));
+      sub->setData(0,Qt::UserRole,1);
+      sub->setData(1,Qt::UserRole,QString::fromStdString(table_layout->get()));
       table_view_qstackedwidget->addWidget(table_layout);
     }
     navigator->insertTopLevelItem(0, header);
 
     connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
-      TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(0,Qt::UserRole).toString());
-      table_view_qstackedwidget->setCurrentWidget(target_widget);
+      int type = item->data(0,Qt::UserRole).toInt();
+
+      if(type==0)
+      {
+        Overview_Master *target_widget = table_view_qstackedwidget->findChild<Overview_Master*>(item->data(1,Qt::UserRole).toString());
+        table_view_qstackedwidget->setCurrentWidget(target_widget);
+      }
+      else
+      {
+        TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(1,Qt::UserRole).toString());
+        table_view_qstackedwidget->setCurrentWidget(target_widget);
+      }
     });
 
     layout->addWidget(navigator);
