@@ -11,4 +11,6 @@ class Overview_Master : public QWidget {
   private slots:
 
   private:
+    std::string database_type;
+    std::string database_name;
 };
