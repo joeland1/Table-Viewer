@@ -5,7 +5,8 @@
 
 Overview_Master::Overview_Master(QWidget *parent):QWidget(parent)
 {
-
+  database_type="null type";
+  databse_name="no name";
 }
 
 std::string Overview_Master::get()
@@ -15,3 +16,21 @@ std::string Overview_Master::get()
   std::string name = address.str();
   return name;
 }
+
+void Overview_Master::set_database_type(std::string type)
+{
+  database_type=type;
+}
+  std::string Overview_Master::get_database_type()
+  {
+    return database_type;
+  }
+
+void Overview_Master::set_database_name(std::string name)
+{
+  databse_name=name;
+}
+  std::string Overview_Master::get_database_name()
+  {
+    return database_name;
+  }
