@@ -19,6 +19,10 @@
 
 #include <typeinfo>
 
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
@@ -28,6 +32,11 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   QTreeWidget *navigator = new QTreeWidget();
     navigator->setFrameShape(QFrame::NoFrame);
     //navigator->setMaximumWidth(100);
+
+
+    QMenuBar *fileMenu = new QMenuBar(this);
+      QMenu *menu = fileMenu->addMenu("&File");
+        menu->addAction(new QAction("Item 1"));
 
   table_view_qstackedwidget = new QStackedWidget;
   QWidget *x = new QWidget;
@@ -85,6 +94,8 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     layout->addWidget(navigator);
     layout->addWidget(table_view_qstackedwidget);
+    layout->setMenuBar(fileMenu);
+
     setLayout(layout);
   }
   else
