@@ -1,6 +1,7 @@
 #include "supported_db\master-widget\TableWidget_Master.h"
 
 #include <QWidget>
+#include <QLabel>
 #include <sstream>
 
 TableWidget_Master::TableWidget_Master(QWidget *parent):QWidget(parent)

@@ -14,29 +14,19 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+
+#include <QSplitter>
+
+#include <QSqlRecord>
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):TableWidget_Master(parent)
 {
+  master_splitter = new QSplitter();
   //each cell is QLineEdit so that user can change values
-  table_data = new QVBoxLayout;
-    table_data->setContentsMargins(0,0,0,0);
-    table_data->setSpacing(0);
-    table_data->setMargin(0);
-    table_data->setAlignment(Qt::AlignTop);
-
-  table_data_header = new QHBoxLayout;
-    table_data_header->setContentsMargins(0,0,0,0);
-    table_data_header->setSpacing(0);
-    table_data_header->setMargin(0);
-    table_data_header->setAlignment(Qt::AlignLeft);
 
   //these values will need to be passed during construction, fix.
   //also need to get the databse names somehow before contsruction
-  //QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
-  //db.setDatabaseName("lauch.db");
 
   QSqlDatabase db = QSqlDatabase::database("test");
-
-
   QSqlQuery query(QSqlDatabase::database("test"));
 
   query.exec("PRAGMA table_info("+table_name+")");
@@ -44,16 +34,16 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
   QList<QString> column_names;
   while(query.next())
   {
-    QPushButton *column_button = new QPushButton(query.value(1).toString());
+    /*QPushButton *column_button = new QPushButton(query.value(1).toString());
       column_button->setContentsMargins(0,0,0,0);
       column_button->setStyleSheet("border: 1px solid black;\
-        padding-right: 6px;\
-        padding-left: 6px");
-    table_data_header->addWidget(column_button);
+        padding-right: 1px;\
+        padding-left: 1px");
+    table_data_header->addWidget(column_button);*/
     column_names.append(query.value(1).toString());
   }
 
-  table_data->addLayout(table_data_header);
+  //table_data->addLayout(table_data_header);
 
   QString db_statement="";
   db_statement.append("SELECT ");
@@ -66,44 +56,34 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
   db_statement.append(" FROM "+table_name);
   query.exec(db_statement);
 
+  QList<QSqlRecord> recs;
   while(query.next())
-  {
-    QHBoxLayout *data_entry_layout = new QHBoxLayout;
-    for(int i=0;i<column_names.size();i++)
-    {
-      QLineEdit *data_entry = new QLineEdit(query.value(i).toString());
-        data_entry->setStyleSheet("border: 1px solid black;\
-          padding-right: 6px;\
-          padding-left: 6px");
-      data_entry_layout->addWidget(data_entry);
-    }
-    table_data->addLayout(data_entry_layout);
-  }
+    recs.append(query.record());
 
-  TableWidget_SQLITE3::sync_column_sizes();
-  setLayout(table_data);
+  for(int i=0;i<column_names.size();i++)
+  {
+    QVBoxLayout *adding_layout = new QVBoxLayout();
+    adding_layout->addWidget(new QPushButton(column_names.at(i)));
+
+    for(int j=0;j<recs.size();j++)
+    {
+      adding_layout->addWidget(new QLineEdit(recs.at(j).value(i).toString()));
+    }
+
+    QWidget *adding_widget = new QWidget();
+    adding_widget->setLayout(adding_layout);
+
+    master_splitter->addWidget(adding_widget);
+  }
+  QVBoxLayout *makebig = new QVBoxLayout();
+  makebig->addWidget(master_splitter);
+  setLayout(makebig);
+
 }
 
 void TableWidget_SQLITE3::sync_column_sizes()
 {
-  for(int i=0;i<table_data_header->count();i++)
-  {
-    //int desired_height = table_data_header->itemAt(i)->widget()->height();
-    //int desired_width = table_data_header->itemAt(i)->widget()->sizeHint().width();
-    int desired_width = 0;
 
-    for(int j=0;j<table_data->count();j++)
-    {
-      if(desired_width < table_data->itemAt(j)->layout()->itemAt(i)->widget()->sizeHint().width())
-        desired_width = table_data->itemAt(j)->layout()->itemAt(i)->widget()->sizeHint().width();
-    }
-    //QSize desired_size = table_data_header->itemAt(i)->widget()->size();
-    for(int j=0;j<table_data->count();j++)
-    {
-      QLayout *single_data_entry = table_data->itemAt(j)->layout();
-      single_data_entry->itemAt(i)->widget()->setFixedWidth(desired_width);
-    }
-  }
 }
 
 /*

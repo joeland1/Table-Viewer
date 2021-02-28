@@ -2,6 +2,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QString>
+#include <QSplitter>
 
 #include "supported_db/master-widget/TableWidget_Master.h"
 
@@ -17,7 +18,6 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
 
   private:
     QString *file_location;
-    QHBoxLayout *table_data_header;
-    QVBoxLayout *table_data;
+    QSplitter *master_splitter;
     void sync_column_sizes();
 };
