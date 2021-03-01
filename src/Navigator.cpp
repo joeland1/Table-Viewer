@@ -1,6 +1,7 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
 #include "supported_db/SQLITE3/Overview_SQLITE3.h"
 #include "Navigator.h"
+#include "Welcome.h"
 
 #include <QHBoxLayout>
 #include <QWidget>
@@ -37,7 +38,11 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
   QMenuBar *fileMenu = new QMenuBar(this);
     QMenu *menu = fileMenu->addMenu("&File");
-      menu->addAction(new QAction("Item 1"));
+      QAction *add_db = new QAction("&New");
+        connect(add_db, &QAction::triggered, this, &Navigator::Add_db_slot);
+      QAction *remove_db = new QAction("&Remove");
+      menu->addAction(add_db);
+      menu->addAction(remove_db);
 
   table_view_qstackedwidget = new QStackedWidget;
   QWidget *x = new QWidget;
@@ -45,7 +50,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   main_label->setText("1");
   table_view_qstackedwidget->addWidget(x);
     table_view_qstackedwidget->setContentsMargins(0,0,0,0);
-
 
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
   db.setDatabaseName("lauch.db");
