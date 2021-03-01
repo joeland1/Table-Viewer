@@ -5,8 +5,8 @@
 
 Overview_Master::Overview_Master(QWidget *parent):QWidget(parent)
 {
-  database_type="null type";
-  database_name="no name";
+  database_type=nullptr;
+  database_name=nullptr;
 }
 
 std::string Overview_Master::get()
