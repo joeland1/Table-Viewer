@@ -21,6 +21,9 @@
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):TableWidget_Master(parent)
 {
   master_splitter = new QSplitter();
+    master_splitter->setHandleWidth(1);
+    master_splitter->setContentsMargins(0,0,0,0);
+    master_splitter->setStyleSheet("QSplitter::handle{background: black;}");
   //each cell is QLineEdit so that user can change values
 
   //these values will need to be passed during construction, fix.
@@ -63,20 +66,36 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
   for(int i=0;i<column_names.size();i++)
   {
     QVBoxLayout *adding_layout = new QVBoxLayout();
-    adding_layout->addWidget(new QPushButton(column_names.at(i)));
+    adding_layout->setAlignment(Qt::AlignTop);
+    adding_layout->setContentsMargins(0,0,0,0);
+    adding_layout->setSpacing(0);
+
+    QPushButton *column_button = new QPushButton(column_names.at(i));
+      column_button->setStyleSheet("border: 1px solid black;\
+        padding-right: 1px;\
+        padding-left: 1px;\
+        border-right-width: 0px");
+    adding_layout->addWidget(column_button);
 
     for(int j=0;j<recs.size();j++)
     {
-      adding_layout->addWidget(new QLineEdit(recs.at(j).value(i).toString()));
+      QLineEdit *data_entry = new QLineEdit(recs.at(j).value(i).toString());
+      data_entry->setStyleSheet("border: 1px solid black;\
+        padding-right: 1px;\
+        padding-left: 1px;\
+        border-right-width: 0px");
+      adding_layout->addWidget(data_entry);
     }
 
     QWidget *adding_widget = new QWidget();
-    adding_widget->setLayout(adding_layout);
+      adding_widget->setLayout(adding_layout);
+      adding_widget->setContentsMargins(0,0,0,0);
 
     master_splitter->addWidget(adding_widget);
   }
   QVBoxLayout *makebig = new QVBoxLayout();
-  makebig->addWidget(master_splitter);
+    makebig->addWidget(master_splitter);
+    makebig->setContentsMargins(0,0,0,0);
   setLayout(makebig);
 
 }

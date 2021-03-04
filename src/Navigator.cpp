@@ -84,7 +84,6 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
       int type = item->data(0,Qt::UserRole).toInt();
-
       if(type==0)
       {
         Overview_Master *target_widget = table_view_qstackedwidget->findChild<Overview_Master*>(item->data(1,Qt::UserRole).toString());
@@ -103,10 +102,12 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     setLayout(layout);*/
 
     QSplitter *split = new QSplitter();
+      split->setHandleWidth(1);
       split->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     split->addWidget(navigator);
     split->addWidget(table_view_qstackedwidget);
     layout->addWidget(split);
+    layout->setMenuBar(fileMenu);
     setLayout(layout);
 
   }
@@ -114,5 +115,9 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   {
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
   }
+}
 
+void Navigator::Add_db_slot()
+{
+  //guess whats comin my dudes
 }
