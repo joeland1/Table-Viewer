@@ -25,14 +25,14 @@
 #include <QAction>
 
 #include <QSplitter>
-
+#include <QFileDialog>
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
 
-  QTreeWidget *navigator = new QTreeWidget();
+  navigator = new QTreeWidget();
     navigator->setFrameShape(QFrame::NoFrame);
     navigator->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -51,12 +51,33 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
   table_view_qstackedwidget->addWidget(x);
     table_view_qstackedwidget->setContentsMargins(0,0,0,0);
 
-  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "test");
-  db.setDatabaseName("lauch.db");
+    /*layout->addWidget(navigator);
+    layout->addWidget(table_view_qstackedwidget);
+    layout->setMenuBar(fileMenu);
+    setLayout(layout);*/
+
+    QSplitter *split = new QSplitter();
+      split->setHandleWidth(1);
+      split->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      split->setStyleSheet("QSplitter::handle{background: black;}");
+    split->addWidget(navigator);
+    split->addWidget(table_view_qstackedwidget);
+    layout->addWidget(split);
+    layout->setMenuBar(fileMenu);
+    setLayout(layout);
+
+}
+
+void Navigator::Add_db_slot()
+{
+  QString filename = QFileDialog::getOpenFileName(this, "Open Document", QDir::rootPath(),"All files (*.*)");
+
+  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", filename);
+  db.setDatabaseName(filename);
 
   if(db.open())
   {
-    QSqlQuery query(QSqlDatabase::database("test"));
+    QSqlQuery query(QSqlDatabase::database(filename));
     query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
@@ -67,57 +88,38 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       header->setData(0,Qt::UserRole,0);
       header->setData(1,Qt::UserRole,QString::fromStdString(overview_tab->get()));
 
-    while(query.next())
-    {
-      QTreeWidgetItem *sub = new QTreeWidgetItem;
-      QString name = query.value(0).toString();
-      sub->setText(0, name);
-      header->addChild(sub);
-      TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name);
-        table_layout->setContentsMargins(0,0,0,0);
-      table_layout->setObjectName(QString::fromStdString(table_layout->get()));
-      sub->setData(0,Qt::UserRole,1);
-      sub->setData(1,Qt::UserRole,QString::fromStdString(table_layout->get()));
-      table_view_qstackedwidget->addWidget(table_layout);
-    }
-    navigator->insertTopLevelItem(0, header);
-
-    connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
-      int type = item->data(0,Qt::UserRole).toInt();
-      if(type==0)
+      while(query.next())
       {
-        Overview_Master *target_widget = table_view_qstackedwidget->findChild<Overview_Master*>(item->data(1,Qt::UserRole).toString());
-        table_view_qstackedwidget->setCurrentWidget(target_widget);
+        QTreeWidgetItem *sub = new QTreeWidgetItem;
+        QString name = query.value(0).toString();
+        sub->setText(0, name);
+        header->addChild(sub);
+        TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name, filename);
+          table_layout->setContentsMargins(0,0,0,0);
+        table_layout->setObjectName(QString::fromStdString(table_layout->get()));
+        sub->setData(0,Qt::UserRole,1);
+        sub->setData(1,Qt::UserRole,QString::fromStdString(table_layout->get()));
+        table_view_qstackedwidget->addWidget(table_layout);
       }
-      else
-      {
-        TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(1,Qt::UserRole).toString());
-        table_view_qstackedwidget->setCurrentWidget(target_widget);
-      }
-    });
+      navigator->insertTopLevelItem(0, header);
 
-    /*layout->addWidget(navigator);
-    layout->addWidget(table_view_qstackedwidget);
-    layout->setMenuBar(fileMenu);
-    setLayout(layout);*/
-
-    QSplitter *split = new QSplitter();
-      split->setHandleWidth(1);
-      split->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    split->addWidget(navigator);
-    split->addWidget(table_view_qstackedwidget);
-    layout->addWidget(split);
-    layout->setMenuBar(fileMenu);
-    setLayout(layout);
-
+      connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
+        int type = item->data(0,Qt::UserRole).toInt();
+        if(type==0)
+        {
+          Overview_Master *target_widget = table_view_qstackedwidget->findChild<Overview_Master*>(item->data(1,Qt::UserRole).toString());
+          table_view_qstackedwidget->setCurrentWidget(target_widget);
+        }
+        else
+        {
+          TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(1,Qt::UserRole).toString());
+          table_view_qstackedwidget->setCurrentWidget(target_widget);
+        }
+      });  
   }
+
   else
   {
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
   }
-}
-
-void Navigator::Add_db_slot()
-{
-  //guess whats comin my dudes
 }

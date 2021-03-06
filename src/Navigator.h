@@ -1,4 +1,5 @@
 #include <QStackedWidget>
+#include <QTreeWidget>
 
 class Navigator : public QWidget {
 
@@ -10,5 +11,6 @@ class Navigator : public QWidget {
   private slots:
     void Add_db_slot();
   private:
-      QStackedWidget *table_view_qstackedwidget;
+    QStackedWidget *table_view_qstackedwidget;
+    QTreeWidget *navigator;
 };

@@ -18,7 +18,7 @@
 #include <QSplitter>
 
 #include <QSqlRecord>
-TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):TableWidget_Master(parent)
+TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
   master_splitter = new QSplitter();
     master_splitter->setHandleWidth(1);
@@ -29,8 +29,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
   //these values will need to be passed during construction, fix.
   //also need to get the databse names somehow before contsruction
 
-  QSqlDatabase db = QSqlDatabase::database("test");
-  QSqlQuery query(QSqlDatabase::database("test"));
+  QSqlDatabase db = QSqlDatabase::database(db_path);
+  QSqlQuery query(QSqlDatabase::database(db_path));
 
   query.exec("PRAGMA table_info("+table_name+")");
 
@@ -74,7 +74,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
       column_button->setStyleSheet("border: 1px solid black;\
         padding-right: 1px;\
         padding-left: 1px;\
-        border-right-width: 0px");
+        border-right-width: 0px;\
+        border-left-width: 0px");
     adding_layout->addWidget(column_button);
 
     for(int j=0;j<recs.size();j++)
@@ -83,7 +84,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name, QWidget *parent):Ta
       data_entry->setStyleSheet("border: 1px solid black;\
         padding-right: 1px;\
         padding-left: 1px;\
-        border-right-width: 0px");
+        border-right-width: 0px;\
+        border-left-width: 0px");
       adding_layout->addWidget(data_entry);
     }
 
