@@ -19,5 +19,4 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
   private:
     QString *file_location;
     QSplitter *master_splitter;
-    void sync_column_sizes();
 };

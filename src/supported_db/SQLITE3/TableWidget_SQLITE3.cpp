@@ -101,12 +101,6 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   setLayout(makebig);
 
 }
-
-void TableWidget_SQLITE3::sync_column_sizes()
-{
-
-}
-
 /*
 QWidget *test = new QWidget();
 new QPushButton(QString::number(data_entry->width()), test);
