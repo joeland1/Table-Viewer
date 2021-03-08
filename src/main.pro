@@ -13,6 +13,7 @@ CONFIG += c++17 \
 SOURCES += \
     main.cpp \
     Navigator.cpp \
+    Welcome.cpp \
     "supported_db/master-widget/TableWidget_Master.cpp" \
     "supported_db/master-widget/Overview_Master.cpp" \
     "supported_db/SQLITE3/TableWidget_SQLITE3.cpp" \
@@ -20,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     Navigator.h \
+    Welcome.h \
     "supported_db/master-widget/TableWidget_Master.h" \
     "supported_db/master-widget/Overview_Master.h" \
     "supported_db/SQLITE3/TableWidget_SQLITE3.h" \

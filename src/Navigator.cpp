@@ -36,19 +36,18 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     navigator->setFrameShape(QFrame::NoFrame);
     navigator->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-  QMenuBar *fileMenu = new QMenuBar(this);
-    QMenu *menu = fileMenu->addMenu("&File");
-      QAction *add_db = new QAction("&New");
-        connect(add_db, &QAction::triggered, this, &Navigator::Add_db_slot);
-      QAction *remove_db = new QAction("&Remove");
-      menu->addAction(add_db);
-      menu->addAction(remove_db);
+  QMenuBar *master_menu = new QMenuBar();
+    QMenu *file_menu = master_menu->addMenu("&File");
+    QMenu *add_menu = file_menu->addMenu(tr("&New"));
+
+    QAction *add_db_SQLITE = new QAction("&SQLITE...");
+      connect(add_db_SQLITE, &QAction::triggered, this, &Navigator::Add_db_slot_SQLITE);
+    QAction *remove_db = new QAction("&Remove");
+    menu->addAction(add_db);
+    menu->addAction(remove_db);
 
   table_view_qstackedwidget = new QStackedWidget;
-  QWidget *x = new QWidget;
-  QLabel *main_label = new QLabel(x);
-  main_label->setText("1");
-  table_view_qstackedwidget->addWidget(x);
+  table_view_qstackedwidget->addWidget(new Welcome);
     table_view_qstackedwidget->setContentsMargins(0,0,0,0);
 
     /*layout->addWidget(navigator);
@@ -68,10 +67,11 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
 }
 
-void Navigator::Add_db_slot()
+void Navigator::Add_db_slot_SQLITE()
 {
   QString filename = QFileDialog::getOpenFileName(this, "Open Document", QDir::rootPath(),"All files (*.*)");
 
+  //connection name is the same as the path
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", filename);
   db.setDatabaseName(filename);
 
@@ -115,7 +115,7 @@ void Navigator::Add_db_slot()
           TableWidget_Master *target_widget = table_view_qstackedwidget->findChild<TableWidget_Master*>(item->data(1,Qt::UserRole).toString());
           table_view_qstackedwidget->setCurrentWidget(target_widget);
         }
-      });  
+      });
   }
 
   else
