@@ -100,6 +100,9 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
     makebig->setContentsMargins(0,0,0,0);
   setLayout(makebig);
 
+  this->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, &QWidget::customContextMenuRequested, this, &this::display_ctx_menu);
+
 }
 /*
 QWidget *test = new QWidget();
