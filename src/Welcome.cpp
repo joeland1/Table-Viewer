@@ -3,7 +3,7 @@
 #include <QLabel>
 
 //might be removed idk yet
-Welcome::Welcome(QWidget *parent):Overview_Master(parent)
+Welcome::Welcome(QWidget *parent):QWidget(parent)
 {
-  test->addWidget(new QLabel("welcome to table viewer"));
+  new QLabel("welcome to table viewer", this);
 }

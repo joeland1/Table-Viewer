@@ -18,6 +18,9 @@
 #include <QSplitter>
 
 #include <QSqlRecord>
+
+#include <QAction>
+#include <QMenu>
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
   master_splitter = new QSplitter();
@@ -37,12 +40,6 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   QList<QString> column_names;
   while(query.next())
   {
-    /*QPushButton *column_button = new QPushButton(query.value(1).toString());
-      column_button->setContentsMargins(0,0,0,0);
-      column_button->setStyleSheet("border: 1px solid black;\
-        padding-right: 1px;\
-        padding-left: 1px");
-    table_data_header->addWidget(column_button);*/
     column_names.append(query.value(1).toString());
   }
 
@@ -71,6 +68,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
     adding_layout->setSpacing(0);
 
     QPushButton *column_button = new QPushButton(column_names.at(i));
+      column_button->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(column_button, &QPushButton::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qpushbutton);
       column_button->setStyleSheet("border: 1px solid black;\
         padding-right: 1px;\
         padding-left: 1px;\
@@ -101,11 +100,25 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   setLayout(makebig);
 
   this->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, &QWidget::customContextMenuRequested, this, &this::display_ctx_menu);
-
+    connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu);
 }
 /*
 QWidget *test = new QWidget();
 new QPushButton(QString::number(data_entry->width()), test);
 test->show();
 */
+void TableWidget_SQLITE3::display_ctx_menu(const QPoint &pos)
+{
+  QMenu contextMenu(tr("Context menu"), this);
+
+  QAction action1("Remove Data Point", this);
+  contextMenu.addAction(&action1);
+
+   contextMenu.exec(mapToGlobal(pos));
+
+}
+
+void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &)
+{
+
+}

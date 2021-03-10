@@ -16,6 +16,7 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
   private slots:
     //bool load_data();
     void display_ctx_menu(const QPoint &);
+    void display_ctx_menu_qpushbutton(const QPoint &);
 
   private:
     QString *file_location;

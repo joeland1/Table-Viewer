@@ -42,9 +42,10 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     QAction *add_db_SQLITE = new QAction("&SQLITE...");
       connect(add_db_SQLITE, &QAction::triggered, this, &Navigator::Add_db_slot_SQLITE);
+      add_menu->addAction(add_db_SQLITE);
+
     QAction *remove_db = new QAction("&Remove");
-    menu->addAction(add_db);
-    menu->addAction(remove_db);
+    master_menu->addAction(remove_db);
 
   table_view_qstackedwidget = new QStackedWidget;
   table_view_qstackedwidget->addWidget(new Welcome);
@@ -62,7 +63,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     split->addWidget(navigator);
     split->addWidget(table_view_qstackedwidget);
     layout->addWidget(split);
-    layout->setMenuBar(fileMenu);
+    layout->setMenuBar(master_menu);
     setLayout(layout);
 
 }
