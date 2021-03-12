@@ -21,6 +21,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QLabel>
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
   file_location = db_path;
@@ -100,11 +101,6 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qwidget);
 
-  if (this->write_to_db())
-  {
-    QWidget *x = new QWidget();
-    x->show();
-  }
 }
 /*
 QWidget *test = new QWidget();
@@ -121,17 +117,12 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
    contextMenu.exec(mapToGlobal(pos));
 }
 
-void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &)
+void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 {
 
 }
 
 bool TableWidget_SQLITE3::write_to_db()
 {
-  QSqlDatabase db = QSqlDatabase::database(file_location);
-  QSqlQuery query(QSqlDatabase::database(file_location));
-
-  
-
   return true;
 }

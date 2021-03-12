@@ -20,6 +20,6 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
     bool write_to_db();
 
   private:
-    QString *file_location;
+    QString file_location;
     QSplitter *master_splitter;
 };
