@@ -13,5 +13,4 @@ class Overview_SQLITE3 : public Overview_Master {
   private slots:
     //bool load_data();
   private:
-    QString connection;
 };

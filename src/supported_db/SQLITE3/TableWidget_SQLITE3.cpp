@@ -23,17 +23,15 @@
 #include <QMenu>
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
+  file_location = db_path;
+
   master_splitter = new QSplitter();
     master_splitter->setHandleWidth(1);
     master_splitter->setContentsMargins(0,0,0,0);
     master_splitter->setStyleSheet("QSplitter::handle{background: black;}");
-  //each cell is QLineEdit so that user can change values
 
-  //these values will need to be passed during construction, fix.
-  //also need to get the databse names somehow before contsruction
-
-  QSqlDatabase db = QSqlDatabase::database(db_path);
-  QSqlQuery query(QSqlDatabase::database(db_path));
+  QSqlDatabase db = QSqlDatabase::database(file_location);
+  QSqlQuery query(QSqlDatabase::database(file_location));
 
   query.exec("PRAGMA table_info("+table_name+")");
 
@@ -100,25 +98,40 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   setLayout(makebig);
 
   this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu);
+    connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qwidget);
+
+  if (this->write_to_db())
+  {
+    QWidget *x = new QWidget();
+    x->show();
+  }
 }
 /*
 QWidget *test = new QWidget();
 new QPushButton(QString::number(data_entry->width()), test);
 test->show();
 */
-void TableWidget_SQLITE3::display_ctx_menu(const QPoint &pos)
+void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
 {
-  QMenu contextMenu(tr("Context menu"), this);
+  QMenu contextMenu(tr("Context menu"));
 
-  QAction action1("Remove Data Point", this);
+  QAction action1("Remove Data Point");
   contextMenu.addAction(&action1);
 
    contextMenu.exec(mapToGlobal(pos));
-
 }
 
 void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &)
 {
 
+}
+
+bool TableWidget_SQLITE3::write_to_db()
+{
+  QSqlDatabase db = QSqlDatabase::database(file_location);
+  QSqlQuery query(QSqlDatabase::database(file_location));
+
+  
+
+  return true;
 }

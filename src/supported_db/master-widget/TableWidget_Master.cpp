@@ -16,3 +16,8 @@ std::string TableWidget_Master::get()
   std::string name = address.str();
   return name;
 }
+
+bool TableWidget_Master::write_to_db()
+{
+  return false;
+}
