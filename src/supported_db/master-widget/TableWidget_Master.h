@@ -9,7 +9,7 @@ class TableWidget_Master : public QWidget {
     std::string get();
 
   private slots:
-    virtual bool write_to_db();
+    virtual bool write_to_db_table();
 
   private:
 };

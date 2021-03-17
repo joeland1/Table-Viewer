@@ -32,9 +32,9 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
 
-  navigator = new QTreeWidget();
-    navigator->setFrameShape(QFrame::NoFrame);
-    navigator->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  navigator_tree_widget = new QTreeWidget();
+    navigator_tree_widget->setFrameShape(QFrame::NoFrame);
+    navigator_tree_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   QMenuBar *master_menu = new QMenuBar();
     QMenu *file_menu = master_menu->addMenu("&File");
@@ -60,7 +60,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       split->setHandleWidth(1);
       split->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
       split->setStyleSheet("QSplitter::handle{background: black;}");
-    split->addWidget(navigator);
+    split->addWidget(navigator_tree_widget);
     split->addWidget(table_view_qstackedwidget);
     layout->addWidget(split);
     layout->setMenuBar(master_menu);
@@ -83,9 +83,12 @@ void Navigator::Add_db_slot_SQLITE()
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
-      Overview_SQLITE3 *overview_tab = new Overview_SQLITE3();
+      Overview_SQLITE3 *overview_tab = new Overview_SQLITE3(filename, this);
       table_view_qstackedwidget->addWidget(overview_tab);
       overview_tab->setObjectName(QString::fromStdString(overview_tab->get()));
+
+      // 0  caterogry is used for type identification
+      //1 category is used for unique identification
       header->setData(0,Qt::UserRole,0);
       header->setData(1,Qt::UserRole,QString::fromStdString(overview_tab->get()));
 
@@ -95,16 +98,16 @@ void Navigator::Add_db_slot_SQLITE()
         QString name = query.value(0).toString();
         sub->setText(0, name);
         header->addChild(sub);
-        TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name, filename);
+        TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name, filename, this);
           table_layout->setContentsMargins(0,0,0,0);
         table_layout->setObjectName(QString::fromStdString(table_layout->get()));
         sub->setData(0,Qt::UserRole,1);
         sub->setData(1,Qt::UserRole,QString::fromStdString(table_layout->get()));
         table_view_qstackedwidget->addWidget(table_layout);
       }
-      navigator->insertTopLevelItem(0, header);
+      navigator_tree_widget->insertTopLevelItem(0, header);
 
-      connect(navigator, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
+      connect(navigator_tree_widget, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column){
         int type = item->data(0,Qt::UserRole).toInt();
         if(type==0)
         {
@@ -123,4 +126,9 @@ void Navigator::Add_db_slot_SQLITE()
   {
     QMessageBox::warning(this, tr("Cannot open database"), tr("Please try again."), QMessageBox::Close);
   }
+}
+
+QTreeWidget* Navigator::get_navigator()
+{
+  return this->navigator_tree_widget;
 }

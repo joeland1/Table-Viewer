@@ -17,7 +17,7 @@ std::string TableWidget_Master::get()
   return name;
 }
 
-bool TableWidget_Master::write_to_db()
+bool TableWidget_Master::write_to_db_table()
 {
   return false;
 }

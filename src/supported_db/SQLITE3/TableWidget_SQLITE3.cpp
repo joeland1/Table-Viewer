@@ -1,4 +1,5 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
+#include "Navigator.h"
 
 #include <QLineEdit>
 #include <QGridLayout>
@@ -22,17 +23,20 @@
 #include <QAction>
 #include <QMenu>
 #include <QLabel>
+
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
-  file_location = db_path;
+  this->table_name=table_name;
 
   master_splitter = new QSplitter();
     master_splitter->setHandleWidth(1);
     master_splitter->setContentsMargins(0,0,0,0);
     master_splitter->setStyleSheet("QSplitter::handle{background: black;}");
 
-  QSqlDatabase db = QSqlDatabase::database(file_location);
-  QSqlQuery query(QSqlDatabase::database(file_location));
+  QSqlDatabase db = QSqlDatabase::database(db_path);
+  QSqlQuery query(QSqlDatabase::database(db_path));
 
   query.exec("PRAGMA table_info("+table_name+")");
 
@@ -109,20 +113,25 @@ test->show();
 */
 void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
 {
-  QMenu contextMenu(tr("Context menu"));
+  QPoint globalPos = this->mapToGlobal(pos);
+  QMenu myMenu;
+  QAction *save = myMenu.addAction("save");
+    connect(save, &QAction::triggered, this, write_to_db_table);
 
-  QAction action1("Remove Data Point");
-  contextMenu.addAction(&action1);
-
-   contextMenu.exec(mapToGlobal(pos));
+  myMenu.exec(globalPos);
+  //if(action)
+  //  action->trigger();
 }
 
 void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 {
-
+  //we keep this blank so that it overrides the qwidget context menu
 }
 
-bool TableWidget_SQLITE3::write_to_db()
+bool TableWidget_SQLITE3::write_to_db_table()
 {
+  this->parentWidget()->parentWidget()->findChildren<QTreeWidget *>();
   return true;
+  //QTreeWidgetItem *submenu = dynamic_cast<QTreeWidgetItem *>(this->parentWidget()->parentWidget()->findChild<QObject *>(this->objectName()));
+  //submenu->setText(0,"winner");
 }

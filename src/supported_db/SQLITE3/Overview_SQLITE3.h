@@ -8,9 +8,10 @@ class Overview_SQLITE3 : public Overview_Master {
   Q_OBJECT
 
   public:
-    Overview_SQLITE3(QWidget *parent = nullptr);
+    Overview_SQLITE3(QString path = nullptr,QWidget *parent = nullptr);
     //bool set_login();
   private slots:
-    //bool load_data();
+    bool write_to_db();
   private:
+    QString path;
 };

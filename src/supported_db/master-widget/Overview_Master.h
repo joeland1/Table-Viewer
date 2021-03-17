@@ -13,6 +13,8 @@ class Overview_Master : public QWidget {
     void set_database_name(std::string name);
       std::string get_database_name();
 
+    virtual bool write_to_db();
+
   private slots:
 
   private:

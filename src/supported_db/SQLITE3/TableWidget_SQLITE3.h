@@ -17,9 +17,9 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
     //bool load_data();
     void display_ctx_menu_qwidget(const QPoint &);
     void display_ctx_menu_qpushbutton(const QPoint &);
-    bool write_to_db();
+    bool write_to_db_table();
 
   private:
-    QString file_location;
     QSplitter *master_splitter;
+    QString table_name;
 };

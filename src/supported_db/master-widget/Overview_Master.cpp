@@ -33,3 +33,8 @@ void Overview_Master::set_database_name(std::string name)
   {
     return database_name;
   }
+
+bool Overview_Master::write_to_db()
+{
+  return false;
+}
