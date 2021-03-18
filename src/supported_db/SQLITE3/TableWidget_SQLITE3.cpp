@@ -130,7 +130,15 @@ void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 
 bool TableWidget_SQLITE3::write_to_db_table()
 {
-  this->parentWidget()->parentWidget()->findChildren<QTreeWidget *>();
+  QList<TreeWidgetItem *> all_tree_widget_tabs = this->parentWidget()->parentWidget()->findChild<QTreeWidget *>()->findChildren<QTreeWidgetItem *>();
+  for(TreeWidgetItem *target:all_tree_widget_tabs)
+    if(target->data(1,Qt::UserRole)->toString()==QString::fromStdString(this->get()))
+    {
+
+    }
+    else
+      return false
+
   return true;
   //QTreeWidgetItem *submenu = dynamic_cast<QTreeWidgetItem *>(this->parentWidget()->parentWidget()->findChild<QObject *>(this->objectName()));
   //submenu->setText(0,"winner");
