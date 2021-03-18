@@ -136,8 +136,6 @@ bool TableWidget_SQLITE3::write_to_db_table()
     {
 
     }
-    else
-      return false
 
   return true;
   //QTreeWidgetItem *submenu = dynamic_cast<QTreeWidgetItem *>(this->parentWidget()->parentWidget()->findChild<QObject *>(this->objectName()));
