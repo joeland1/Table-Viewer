@@ -10,6 +10,7 @@ class TableWidget_Master : public QWidget {
 
   private slots:
     virtual bool write_to_db_table();
+    virtual bool write_to_db_all();
 
   private:
 };

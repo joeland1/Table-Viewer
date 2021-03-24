@@ -1,4 +1,5 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
+#include "supported_db/SQLITE3/Overview_SQLITE3.h"
 #include "Navigator.h"
 
 #include <QLineEdit>
@@ -117,6 +118,8 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
   QMenu myMenu;
   QAction *save = myMenu.addAction("save");
     connect(save, &QAction::triggered, this, write_to_db_table);
+  QAction *save_all = myMenu.addAction("save all");
+    connect(save_all, &QAction::triggered, this, write_to_db_all);
 
   myMenu.exec(globalPos);
   //if(action)
@@ -125,13 +128,21 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
 
 void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 {
-  //we keep this blank so that it overrides the qwidget context menu
+  //we keep this blank so that it overrides the qwidget context menu when clicking a pushbutton
 }
 
-bool TableWidget_SQLITE3::write_to_db_table()
+bool TableWidget_SQLITE3::write_to_db_table(QString path)
 {
-  this->parentWidget()->parentWidget()->findChildren<QTreeWidget *>();
+  QTreeWidgetItem *coresponding_tab_on_treewidget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab();
+  coresponding_tab_on_treewidget->setText(0,"ajlkfhjaskldjf");
   return true;
   //QTreeWidgetItem *submenu = dynamic_cast<QTreeWidgetItem *>(this->parentWidget()->parentWidget()->findChild<QObject *>(this->objectName()));
   //submenu->setText(0,"winner");
+}
+
+bool TableWidget_SQLITE3::write_to_db_all()
+{
+  Overview_SQLITE3 *overview_tab = dynamic_cast<Overview_SQLITE3 *>(this->parentWidget());
+  QList<TableWidget_SQLITE3 *> all_tables = overview_tab->findChildren<TableWidget_SQLITE3 *>();
+  overview_tab->write_to_db(all_tables);
 }

@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <sstream>
-
+#include <QList>
 TableWidget_Master::TableWidget_Master(QWidget *parent):QWidget(parent)
 {
 
@@ -18,6 +18,11 @@ std::string TableWidget_Master::get()
 }
 
 bool TableWidget_Master::write_to_db_table()
+{
+  return false;
+}
+
+bool TableWidget_Master::write_to_db_all()
 {
   return false;
 }
