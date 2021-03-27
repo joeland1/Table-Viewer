@@ -107,6 +107,12 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
     connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qwidget);
 
 }
+
+TableWidget_SQLITE3::~TableWidget_SQLITE3()
+{
+  TableWidget_SQLITE3 *overview_widget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->child(i)->data(1,Qt::UserRole).toString());
+  QSqlDatabase::removeDatabase(overview_widget->get_connection_info());
+}
 /*
 QWidget *test = new QWidget();
 new QPushButton(QString::number(data_entry->width()), test);
@@ -131,18 +137,38 @@ void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
   //we keep this blank so that it overrides the qwidget context menu when clicking a pushbutton
 }
 
-bool TableWidget_SQLITE3::write_to_db_table(QString path)
+bool TableWidget_SQLITE3::write_to_db_table()
 {
-  QTreeWidgetItem *coresponding_tab_on_treewidget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab();
-  coresponding_tab_on_treewidget->setText(0,"ajlkfhjaskldjf");
+  QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
+  TableWidget_SQLITE3 *overview_widget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->child(i)->data(1,Qt::UserRole).toString());
+
+  QString db_path = overview_widget->get_connection_info();
+
+  {
+    QSqlDatabase db = QSqlDatabase::database(db_path);
+    QSqlQuery query(QSqlDatabase::database(db_path));
+
+    //select entry, if theres only 1, we can use update
+    int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
+    for(int i=0;i<data_entry_count;i++)
+    {
+      QString db_statement= "SELECT COUNT(*) FROM "+this->table_name+"WHERE ";
+    }
+    //if there are mutliple of the same entry and where cannot be used, update whole table
+
+  }
+
   return true;
-  //QTreeWidgetItem *submenu = dynamic_cast<QTreeWidgetItem *>(this->parentWidget()->parentWidget()->findChild<QObject *>(this->objectName()));
-  //submenu->setText(0,"winner");
 }
 
 bool TableWidget_SQLITE3::write_to_db_all()
 {
-  Overview_SQLITE3 *overview_tab = dynamic_cast<Overview_SQLITE3 *>(this->parentWidget());
-  QList<TableWidget_SQLITE3 *> all_tables = overview_tab->findChildren<TableWidget_SQLITE3 *>();
+  QList<QWidget *> all_tables;
+  QTreeWidgetItem *corresponding_tab_on_treewidget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
+  for(int i=0;i<corresponding_tab_on_treewidget->childCount();i++)
+    all_tables.append(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(corresponding_tab_on_treewidget->child(i)->data(1,Qt::UserRole).toString()));
+
   overview_tab->write_to_db(all_tables);
+
+  return true;
 }

@@ -141,3 +141,8 @@ QTreeWidgetItem* Navigator::get_selected_tab()
 {
   return this->selected_tab;
 }
+
+QStackedWidget* Navigator::get_table_view_qstackedwidget()
+{
+  return this->table_view_qstackedwidget;
+}

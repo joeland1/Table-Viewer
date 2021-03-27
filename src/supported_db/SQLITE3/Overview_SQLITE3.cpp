@@ -7,6 +7,7 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QList>
+#include <QString>
 
 Overview_SQLITE3::Overview_SQLITE3(QString path, QWidget *parent):Overview_Master(parent)
 {
@@ -18,14 +19,19 @@ Overview_SQLITE3::Overview_SQLITE3(QString path, QWidget *parent):Overview_Maste
   setLayout(test);
 }
 
-bool Overview_SQLITE3::write_to_db(QList<TableWidget_SQLITE3 *> table_widgets)
+bool Overview_SQLITE3::write_to_db(QList<QWidget *> table_widgets)
 {
-  for(TableWidget_SQLITE3 *i:table_widgets)
-    i->write_to_db_table(path);
+  for(int i=0;i<table_widgets.size();i++)
+  {
+    TableWidget_SQLITE3 *target = dynamic_cast<TableWidget_SQLITE3 *>(table_widgets.at(i));
+    //target->write_to_db_table(path);
+    target->write_to_db_table();
+  }
+
   return true;
 }
-/*
-QWidget *test = new QWidget();
-new QPushButton(QString::number(data_entry->width()), test);
-test->show();
-*/
+
+QString Overview_SQLITE3::get_connection_info()
+{
+  return this->path;
+}

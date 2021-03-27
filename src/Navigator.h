@@ -10,6 +10,7 @@ class Navigator : public QWidget {
     Navigator(QWidget *parent = nullptr);
     QTreeWidget* get_navigator();
     QTreeWidgetItem* get_selected_tab();
+    QStackedWidget* get_table_view_qstackedwidget();
 
   private slots:
     void Add_db_slot_SQLITE();
