@@ -6,8 +6,6 @@ class Welcome : public QWidget {
 
   public:
     Welcome(QWidget *parent = nullptr);
-    //bool set_login();
   private slots:
-    //bool load_data();
   private:
 };
