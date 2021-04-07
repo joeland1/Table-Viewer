@@ -12,6 +12,7 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
 
   public:
     TableWidget_SQLITE3(QString table_name = nullptr, QString db_path = nullptr, QWidget *parent = nullptr);
+    ~TableWidget_SQLITE3();
 
   public slots:
     bool write_to_db_table();

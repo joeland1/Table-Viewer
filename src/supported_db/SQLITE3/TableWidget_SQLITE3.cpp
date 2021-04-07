@@ -1,6 +1,7 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
 #include "supported_db/SQLITE3/Overview_SQLITE3.h"
 #include "Navigator.h"
+#include "supported_db/master-widget/DataEntry_QLineEdit.h"
 
 #include <QLineEdit>
 #include <QGridLayout>
@@ -83,7 +84,7 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 
     for(int j=0;j<recs.size();j++)
     {
-      QLineEdit *data_entry = new QLineEdit(recs.at(j).value(i).toString());
+      DataEntry_QLineEdit *data_entry = new DataEntry_QLineEdit(recs.at(j).value(i).toString());
       data_entry->setStyleSheet("border: 1px solid black;\
         padding-right: 1px;\
         padding-left: 1px;\
@@ -110,8 +111,7 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 
 TableWidget_SQLITE3::~TableWidget_SQLITE3()
 {
-  TableWidget_SQLITE3 *overview_widget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->child(i)->data(1,Qt::UserRole).toString());
-  QSqlDatabase::removeDatabase(overview_widget->get_connection_info());
+
 }
 /*
 QWidget *test = new QWidget();
@@ -139,20 +139,72 @@ void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 
 bool TableWidget_SQLITE3::write_to_db_table()
 {
+
   QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
-  TableWidget_SQLITE3 *overview_widget = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->child(i)->data(1,Qt::UserRole).toString());
+  Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
 
   QString db_path = overview_widget->get_connection_info();
 
   {
+    bool write_whole_db=false;
+    
     QSqlDatabase db = QSqlDatabase::database(db_path);
     QSqlQuery query(QSqlDatabase::database(db_path));
 
     //select entry, if theres only 1, we can use update
-    int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
-    for(int i=0;i<data_entry_count;i++)
+    //int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
+    QList<QVBoxLayout *> all_vertial_splitters;
+    for(int i=0;i<this->master_splitter->count();i++)
+      all_vertial_splitters.append(this->master_splitter->widget(i)->findChild<QVBoxLayout *>());
+
+    for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
     {
-      QString db_statement= "SELECT COUNT(*) FROM "+this->table_name+"WHERE ";
+      QList<DataEntry_QLineEdit *> data_entry;
+      QList<QString> column_names;
+      for(int column=0;column<all_vertial_splitters.size();column++)
+      {
+        data_entry.append(dynamic_cast<DataEntry_QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget()));
+        column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
+      }
+
+      bool needs_update = false;
+      for(int i=0;i<data_entry.size();i++)
+        if(data_entry.at(i)->isUndoAvailable()==true)
+          needs_update=true;
+
+      if(needs_update==true)
+      {
+        //table_name=? and table_name=? ...
+        QString table_name_string="";
+        //?,? ...
+        QString table_name_values="";
+        for(int i=0;i<column_names.size();i++)
+        {
+          table_name_string.append(column_names.at(i)+"=?");
+          table_name_values.append("?");
+          if(i!=column_names.size()-1)
+          {
+            table_name_string.append(" and ");
+            table_name_values.append(",");
+          }
+        }
+        query.prepare("SELECT COUNT(*) FROM "+this->table_name+" WHERE "+table_name_string);
+        for(int i=0;i<column_names.size();i++)
+          query.addBindValue(data_entry.at(i)->get_base_text());
+
+        query.exec();
+        query.next();
+        int amount_of_entries = query.value(0).toInt();
+        if(amount_of_entries==1)
+        {
+          this->parentWidget()->parentWidget()->parentWidget()->setWindowTitle("its 1");
+        }
+        else
+        {
+          this->parentWidget()->parentWidget()->parentWidget()->setWindowTitle(QString::number(amount_of_entries));
+        }
+      }
+
     }
     //if there are mutliple of the same entry and where cannot be used, update whole table
 
@@ -168,7 +220,9 @@ bool TableWidget_SQLITE3::write_to_db_all()
   for(int i=0;i<corresponding_tab_on_treewidget->childCount();i++)
     all_tables.append(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(corresponding_tab_on_treewidget->child(i)->data(1,Qt::UserRole).toString()));
 
-  overview_tab->write_to_db(all_tables);
+  QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
+  Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
+  overview_widget->write_to_db(all_tables);
 
   return true;
 }

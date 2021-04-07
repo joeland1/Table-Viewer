@@ -19,6 +19,11 @@ Overview_SQLITE3::Overview_SQLITE3(QString path, QWidget *parent):Overview_Maste
   setLayout(test);
 }
 
+Overview_SQLITE3::~Overview_SQLITE3()
+{
+  
+}
+
 bool Overview_SQLITE3::write_to_db(QList<QWidget *> table_widgets)
 {
   for(int i=0;i<table_widgets.size();i++)

@@ -66,11 +66,11 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->addWidget(split);
     layout->setMenuBar(master_menu);
     setLayout(layout);
-
 }
 
 void Navigator::Add_db_slot_SQLITE()
 {
+  qInfo("added SQLITE file");
   QString filename = QFileDialog::getOpenFileName(this, "Open Document", QDir::rootPath(),"All files (*.*)");
 
   //connection name is the same as the path

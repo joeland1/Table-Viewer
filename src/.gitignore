@@ -4,4 +4,4 @@ main
 a.out
 release/*
 debug/*
-object_script.main.*
+object_script.TableViewer.*
