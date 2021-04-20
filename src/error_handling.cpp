@@ -18,7 +18,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
    {
 
     case QtDebugMsg:
-       txt += QString("{Debug} \t\t %1").arg(msg);
+       txt += QString("{Debug} \t %1").arg(msg);
        break;
     case QtWarningMsg:
        txt += QString("{Warning} \t %1").arg(msg);
@@ -27,11 +27,11 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
        txt += QString("{Critical} \t %1").arg(msg);
        break;
     case QtFatalMsg:
-       txt += QString("{Fatal} \t\t %1").arg(msg);
+       txt += QString("{Fatal} \t %1").arg(msg);
        abort();
        break;
     case QtInfoMsg:
-      txt+= QString("{Info} \t\t %1").arg(msg);
+      txt+= QString("{Info} \t %1").arg(msg);
       break;
     default:
       txt+= QString("Unhandeled message");
