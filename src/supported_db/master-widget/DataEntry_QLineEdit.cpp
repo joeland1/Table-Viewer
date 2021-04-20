@@ -18,6 +18,7 @@ void DataEntry_QLineEdit::setText(QString newText)
 void DataEntry_QLineEdit::save()
 {
   this->base_text = QLineEdit::text();
+  QLineEdit::setText(this->base_text);
 }
 
 QString DataEntry_QLineEdit::get_base_text()
