@@ -1,7 +1,6 @@
 #include "supported_db/SQLITE3/TableWidget_SQLITE3.h"
 #include "supported_db/SQLITE3/Overview_SQLITE3.h"
 #include "Navigator.h"
-#include "supported_db/master-widget/DataEntry_QLineEdit.h"
 
 #include <QLineEdit>
 #include <QGridLayout>
@@ -28,6 +27,10 @@
 
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+
+#include <QtDebug>
+
+#include "libs/SQLITE3/sqlite3.h"
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
 {
   this->table_name=table_name;
@@ -84,7 +87,7 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 
     for(int j=0;j<recs.size();j++)
     {
-      DataEntry_QLineEdit *data_entry = new DataEntry_QLineEdit(recs.at(j).value(i).toString());
+      QLineEdit *data_entry = new QLineEdit(recs.at(j).value(i).toString());
       data_entry->setStyleSheet("border: 1px solid black;\
         padding-right: 1px;\
         padding-left: 1px;\
@@ -147,7 +150,7 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
   {
     bool write_whole_db=false;
-    
+
     QSqlDatabase db = QSqlDatabase::database(db_path);
     QSqlQuery query(QSqlDatabase::database(db_path));
 
@@ -159,55 +162,85 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
     for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
     {
-      QList<DataEntry_QLineEdit *> data_entry;
+      QList<QLineEdit *> data_entry;
       QList<QString> column_names;
       for(int column=0;column<all_vertial_splitters.size();column++)
       {
-        data_entry.append(dynamic_cast<DataEntry_QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget()));
+        data_entry.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget()));
         column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
       }
 
-      bool needs_update = false;
-      for(int i=0;i<data_entry.size();i++)
-        if(data_entry.at(i)->isUndoAvailable()==true)
-          needs_update=true;
+      //SELECT * FROM ENABLED_STUFF where rowid=2 LIMIT 1; -> use this to find target info for where, check that data is different to minimize writes
+      //UPDATE ENABLED_STUFF SET status=42069 where rowid=2;
+      //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
 
-      if(needs_update==true)
+      for(int i=0;i<data_entry.size();i++)
       {
-        //table_name=? and table_name=? ...
+        //table_column1=? and table_column2=? ...
         QString table_name_string="";
-        //?,? ...
-        QString table_name_values="";
         for(int i=0;i<column_names.size();i++)
-        {
-          table_name_string.append(column_names.at(i)+"=?");
-          table_name_values.append("?");
-          if(i!=column_names.size()-1)
-          {
-            table_name_string.append(" and ");
-            table_name_values.append(",");
-          }
-        }
-        query.prepare("SELECT COUNT(*) FROM "+this->table_name+" WHERE "+table_name_string);
-        for(int i=0;i<column_names.size();i++)
-          query.addBindValue(data_entry.at(i)->get_base_text());
+          table_name_string.append(column_names.at(i)+"=? and ");
+
+        query.prepare("SELECT COUNT(*) FROM "+this->table_name+" WHERE "+table_name_string+"rowid=?;");
+        for(int j=0;j<column_names.size();j++)
+          query.addBindValue(data_entry.at(j)->get_base_text());
+        query.addBindValue(row);
 
         query.exec();
         query.next();
-        int amount_of_entries = query.value(0).toInt();
-        if(amount_of_entries==1)
+        if(query.value(0).toInt()==1)
         {
-          this->parentWidget()->parentWidget()->parentWidget()->setWindowTitle("its 1");
+          qDebug() << "found matching single entry, updating that entry";
+
+          QString string_for_set="";
+          for(int ii=0;ii<column_names.size();ii++)
+          {
+            string_for_set.append();
+            if(ii!=column_names.size()-1)
+              string_for_set.append(",");
+          }
+          query.prepare("UPDATE "+this->table_name+"set" " WHERE "+table_name_string+"rowid=?;");
+          for(int j=0;j<column_names.size();j++)
+            query.addBindValue(data_entry.at(j)->get_base_text());
+          query.addBindValue(row);
+          query.exec();
         }
         else
         {
-          this->parentWidget()->parentWidget()->parentWidget()->setWindowTitle(QString::number(amount_of_entries));
+          qDebug() << "found" << query.value(0).toInt() << "matching entry(ies) for data entry in row" << row << "not updating";
+        }
+        return true;
+      }
+    }
+
+
+    //if there are mutliple of the same entry and where cannot be used, update whole table
+    /*if(write_whole_db == false)
+    {
+      qDebug() << "can rewrite only desired lines";
+    }
+    else
+    {
+      qDebug() << "must rewrite whole table";
+      query.exec("delete from "+this->table_name);
+      for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
+      {
+        //statement: insert into table_name (category1, category2) values (?,?)
+        query.prepare("INSERT INTO "+this->table_name+" "+);
+        QString category_names="";
+        QString values="";
+        for(int column=0;column<all_vertial_splitters.size();column++)
+        {
+          category_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column).itemAt(0)->widget())->text());
+          values.append("?");
+          if(column!=all_vertial_splitters.size()-1)
+          {
+            category_names.append(",");
+            values.append(",");
+          }
         }
       }
-
-    }
-    //if there are mutliple of the same entry and where cannot be used, update whole table
-
+    }*/
   }
 
   return true;

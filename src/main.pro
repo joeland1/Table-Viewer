@@ -16,9 +16,9 @@ SOURCES += \
     Welcome.cpp \
     "supported_db/master-widget/TableWidget_Master.cpp" \
     "supported_db/master-widget/Overview_Master.cpp" \
-    "supported_db/master-widget/DataEntry_QLineEdit.cpp" \
     "supported_db/SQLITE3/TableWidget_SQLITE3.cpp" \
     "supported_db/SQLITE3/Overview_SQLITE3.cpp" \
+    "libs/SQLITE3/sqlite3.c"
     error_handling.cpp
 
 HEADERS += \
@@ -26,9 +26,9 @@ HEADERS += \
     Welcome.h \
     "supported_db/master-widget/TableWidget_Master.h" \
     "supported_db/master-widget/Overview_Master.h" \
-    "supported_db/master-widget/DataEntry_QLineEdit.h" \
     "supported_db/SQLITE3/TableWidget_SQLITE3.h" \
     "supported_db/SQLITE3/Overview_SQLITE3.h" \
+    "libs/SQLITE3/sqlite3.h"
     error_handling.h
 
 FORMS +=

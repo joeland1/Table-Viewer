@@ -26,6 +26,8 @@
 
 #include <QSplitter>
 #include <QFileDialog>
+
+#include "libs/SQLITE3/sqlite3.h"
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout();
@@ -74,13 +76,27 @@ void Navigator::Add_db_slot_SQLITE()
   QString filename = QFileDialog::getOpenFileName(this, "Open Document", QDir::rootPath(),"All files (*.*)");
 
   //connection name is the same as the path
-  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", filename);
-  db.setDatabaseName(filename);
+  //QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", filename);
+  //db.setDatabaseName(filename);
 
-  if(db.open())
+  rc = sqlite3_open(filename.toStdString().c_str(), &db);
+
+  if(true)//change this later to a check
   {
-    QSqlQuery query(QSqlDatabase::database(filename));
-    query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
+    //QSqlQuery query(QSqlDatabase::database(filename));
+    //query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
+    extern "C"
+    {
+      sqlite3 *db;        // database connection
+      int rc;             // return code
+      char *errmsg;       // pointer to an error string
+      char *query = NULL;
+      sqlite3_stmt *stmt;
+
+      asprintf(&query, "SELECT name FROM sqlite_master WHERE type='table';");
+      sqlite3_prepare_v3(db, query, -1, 0, &stmt, NULL);
+      free(query);
+    }
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
@@ -93,10 +109,10 @@ void Navigator::Add_db_slot_SQLITE()
     header->setData(0,Qt::UserRole,0);
     header->setData(1,Qt::UserRole,QString::fromStdString(overview_tab->get()));
 
-    while(query.next())
+    while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
       QTreeWidgetItem *sub = new QTreeWidgetItem;
-      QString name = query.value(0).toString();
+      QString name = QString(sqlite3_column_text(stmt, 0));
         sub->setText(0, name);
         header->addChild(sub);
       TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name, filename, this);
