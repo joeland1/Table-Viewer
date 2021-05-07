@@ -6,8 +6,8 @@
 #include <QGridLayout>
 
 //sququery and sqldb should be removed soon
-#include <QSqlQuery>
-#include <QSqlDatabase>
+//#include <QSqlQuery>
+//#include <QSqlDatabase>
 #include <QString>
 
 #include <QMessageBox>
@@ -19,7 +19,7 @@
 
 #include <QSplitter>
 
-#include <QSqlRecord>
+//#include <QSqlRecord>
 
 #include <QAction>
 #include <QMenu>
@@ -35,20 +35,30 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 {
   this->table_name=table_name;
 
-  master_splitter = new QSplitter();
+  this->master_splitter = new QSplitter();
     master_splitter->setHandleWidth(1);
     master_splitter->setContentsMargins(0,0,0,0);
     master_splitter->setStyleSheet("QSplitter::handle{background: black;}");
 
-  QSqlDatabase db = QSqlDatabase::database(db_path);
-  QSqlQuery query(QSqlDatabase::database(db_path));
+  //QSqlDatabase db = QSqlDatabase::database(db_path);
+  //QSqlQuery query(QSqlDatabase::database(db_path));
 
-  query.exec("PRAGMA table_info("+table_name+")");
+  sqlite3 *db;        // database connection
+  int rc;             // return code
+  char *errmsg;       // pointer to an error string
+  sqlite3_stmt *stmt;
+
+  rc = sqlite3_open(db_path.toStdString().c_str(), &db);
+
+  sqlite3_prepare_v3(db, ("PRAGMA table_info("+table_name.toStdString()+")").c_str(), -1, 0, &stmt, NULL);
+  //free(query);
+
+  //query.exec("PRAGMA table_info("+table_name+")");
 
   QList<QString> column_names;
-  while(query.next())
+  while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
   {
-    column_names.append(query.value(1).toString());
+    column_names.append(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))));
   }
 
   //table_data->addLayout(table_data_header);
@@ -62,18 +72,23 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
       db_statement.append(",");
   }
   db_statement.append(" FROM "+table_name);
-  query.exec(db_statement);
+  //query.exec(db_statement);
 
-  QList<QSqlRecord> recs;
-  while(query.next())
-    recs.append(query.record());
+  sqlite3_prepare_v3(db, db_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
 
+  //QList<QSqlRecord> recs;
+  //while(query.next())
+    //recs.append(query.record());
+
+  //first list is the  row, second list is the entries in that row
+  QList<QVBoxLayout *> all_columns;
   for(int i=0;i<column_names.size();i++)
   {
-    QVBoxLayout *adding_layout = new QVBoxLayout();
-    adding_layout->setAlignment(Qt::AlignTop);
-    adding_layout->setContentsMargins(0,0,0,0);
-    adding_layout->setSpacing(0);
+    QVBoxLayout *column_layout = new QVBoxLayout();
+      column_layout->setAlignment(Qt::AlignTop);
+      column_layout->setContentsMargins(0,0,0,0);
+      column_layout->setSpacing(0);
+    all_columns.append(column_layout);
 
     QPushButton *column_button = new QPushButton(column_names.at(i));
       column_button->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -83,25 +98,23 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
         padding-left: 1px;\
         border-right-width: 0px;\
         border-left-width: 0px");
-    adding_layout->addWidget(column_button);
+    column_layout->addWidget(column_button);
 
-    for(int j=0;j<recs.size();j++)
-    {
-      QLineEdit *data_entry = new QLineEdit(recs.at(j).value(i).toString());
-      data_entry->setStyleSheet("border: 1px solid black;\
-        padding-right: 1px;\
-        padding-left: 1px;\
-        border-right-width: 0px;\
-        border-left-width: 0px");
-      adding_layout->addWidget(data_entry);
-    }
-
-    QWidget *adding_widget = new QWidget();
-      adding_widget->setLayout(adding_layout);
-      adding_widget->setContentsMargins(0,0,0,0);
-
-    master_splitter->addWidget(adding_widget);
+    QWidget *column_widget = new QWidget();
+      column_widget->setLayout(column_layout);
+      column_widget->setContentsMargins(0,0,0,0);
+    this->master_splitter->addWidget(column_widget);
   }
+
+  while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    for(int i=0;i<column_names.size();i++)
+    {
+      QLineEdit *data_entry = new QLineEdit(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
+      all_columns.at(i)->addWidget(data_entry);
+    }
+  }
+
   QVBoxLayout *makebig = new QVBoxLayout();
     makebig->addWidget(master_splitter);
     makebig->setContentsMargins(0,0,0,0);
@@ -109,18 +122,13 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 
   this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qwidget);
-
 }
 
 TableWidget_SQLITE3::~TableWidget_SQLITE3()
 {
 
 }
-/*
-QWidget *test = new QWidget();
-new QPushButton(QString::number(data_entry->width()), test);
-test->show();
-*/
+
 void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
 {
   QPoint globalPos = this->mapToGlobal(pos);
@@ -146,6 +154,7 @@ bool TableWidget_SQLITE3::write_to_db_table()
   QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
   Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
 
+  /*
   QString db_path = overview_widget->get_connection_info();
 
   {
@@ -215,7 +224,7 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
 
     //if there are mutliple of the same entry and where cannot be used, update whole table
-    /*if(write_whole_db == false)
+    if(write_whole_db == false)
     {
       qDebug() << "can rewrite only desired lines";
     }
@@ -240,8 +249,8 @@ bool TableWidget_SQLITE3::write_to_db_table()
           }
         }
       }
-    }*/
-  }
+    }
+  }*/
 
   return true;
 }

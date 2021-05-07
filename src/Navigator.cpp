@@ -5,8 +5,8 @@
 
 #include <QHBoxLayout>
 #include <QWidget>
-#include <QSqlDatabase>
-#include <QSqlQuery>
+//#include <QSqlDatabase>
+//#include <QSqlQuery>
 
 #include <QMessageBox>
 
@@ -46,7 +46,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     QMenu *file_menu = master_menu->addMenu("&File");
     QMenu *add_menu = file_menu->addMenu(tr("&New"));
 
-    QAction *add_db_SQLITE = new QAction("&SQLITE...");
+    QAction *add_db_SQLITE = new QAction("&SQLITE3...");
       connect(add_db_SQLITE, &QAction::triggered, this, &Navigator::Add_db_slot_SQLITE);
       add_menu->addAction(add_db_SQLITE);
 
@@ -79,24 +79,21 @@ void Navigator::Add_db_slot_SQLITE()
   //QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", filename);
   //db.setDatabaseName(filename);
 
-  rc = sqlite3_open(filename.toStdString().c_str(), &db);
-
   if(true)//change this later to a check
   {
     //QSqlQuery query(QSqlDatabase::database(filename));
     //query.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
-    extern "C"
-    {
-      sqlite3 *db;        // database connection
-      int rc;             // return code
-      char *errmsg;       // pointer to an error string
-      char *query = NULL;
-      sqlite3_stmt *stmt;
 
-      asprintf(&query, "SELECT name FROM sqlite_master WHERE type='table';");
-      sqlite3_prepare_v3(db, query, -1, 0, &stmt, NULL);
-      free(query);
-    }
+    sqlite3 *db;        // database connection
+    int rc;             // return code
+    char *errmsg;       // pointer to an error string
+    char *query = NULL;
+    sqlite3_stmt *stmt;
+
+    rc = sqlite3_open(filename.toStdString().c_str(), &db);
+
+    sqlite3_prepare_v3(db, ("SELECT name FROM sqlite_master WHERE type='table';"), -1, 0, &stmt, NULL);
+    //free(query);
 
     QTreeWidgetItem *header = new QTreeWidgetItem();
       header->setText(0, "databse name:connection type");
@@ -112,7 +109,7 @@ void Navigator::Add_db_slot_SQLITE()
     while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
     {
       QTreeWidgetItem *sub = new QTreeWidgetItem;
-      QString name = QString(sqlite3_column_text(stmt, 0));
+      QString name = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
         sub->setText(0, name);
         header->addChild(sub);
       TableWidget_SQLITE3 *table_layout = new TableWidget_SQLITE3(name, filename, this);
@@ -162,3 +159,23 @@ QStackedWidget* Navigator::get_table_view_qstackedwidget()
 {
   return this->table_view_qstackedwidget;
 }
+
+//found this online
+/*QString getStringFromUnsignedChar(const unsigned char *str ){
+    QString result = "";
+    int lengthOfString = strlen( reinterpret_cast<const char*>(str) );
+
+    // print string in reverse order
+    QString s;
+    for( int i = 0; i < lengthOfString; i++ ){
+        s = QString( "%1" ).arg( str[i], 0, 16 );
+
+        // account for single-digit hex values (always must serialize as two digits)
+        if( s.length() == 1 )
+            result.append( "0" );
+
+        result.append( s );
+    }
+
+    return result;
+}*/

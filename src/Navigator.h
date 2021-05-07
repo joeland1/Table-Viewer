@@ -18,4 +18,5 @@ class Navigator : public QWidget {
     QStackedWidget *table_view_qstackedwidget;
     QTreeWidget *navigator_tree_widget;
     QTreeWidgetItem *selected_tab;
+    //QString getStringFromUnsignedChar(const unsigned char *str);
 };

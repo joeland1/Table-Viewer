@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -18,8 +18,8 @@ SOURCES += \
     "supported_db/master-widget/Overview_Master.cpp" \
     "supported_db/SQLITE3/TableWidget_SQLITE3.cpp" \
     "supported_db/SQLITE3/Overview_SQLITE3.cpp" \
-    "libs/SQLITE3/sqlite3.c"
-    error_handling.cpp
+    "libs/SQLITE3/sqlite3.c" \
+    "error_handling.cpp" \
 
 HEADERS += \
     Navigator.h \
@@ -29,7 +29,7 @@ HEADERS += \
     "supported_db/SQLITE3/TableWidget_SQLITE3.h" \
     "supported_db/SQLITE3/Overview_SQLITE3.h" \
     "libs/SQLITE3/sqlite3.h"
-    error_handling.h
+    "error_handling.h"
 
 FORMS +=
 
