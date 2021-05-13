@@ -19,4 +19,5 @@ class Overview_SQLITE3 : public Overview_Master {
 
   private:
     QString path;
+    //QList<QList<unsigned char *>> og_record;
 };

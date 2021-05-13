@@ -30,6 +30,7 @@
 #include "libs/SQLITE3/sqlite3.h"
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
+  qInfo("Application Launched");
   QHBoxLayout *layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);

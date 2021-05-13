@@ -122,6 +122,8 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
 
   this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &TableWidget_SQLITE3::display_ctx_menu_qwidget);
+
+  sqlite3_close(db);
 }
 
 TableWidget_SQLITE3::~TableWidget_SQLITE3()
@@ -150,18 +152,24 @@ void TableWidget_SQLITE3::display_ctx_menu_qpushbutton(const QPoint &pos)
 
 bool TableWidget_SQLITE3::write_to_db_table()
 {
-
+  qInfo("saving table...");
   QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
   Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
 
-  /*
   QString db_path = overview_widget->get_connection_info();
 
   {
     bool write_whole_db=false;
 
-    QSqlDatabase db = QSqlDatabase::database(db_path);
-    QSqlQuery query(QSqlDatabase::database(db_path));
+    sqlite3 *db;        // database connection
+    int rc;             // return code
+    char *errmsg;       // pointer to an error string
+    sqlite3_stmt *stmt;
+
+    rc = sqlite3_open(db_path.toStdString().c_str(), &db);
+
+    //QSqlDatabase db = QSqlDatabase::database(db_path);
+    //QSqlQuery query(QSqlDatabase::database(db_path));
 
     //select entry, if theres only 1, we can use update
     //int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
@@ -176,81 +184,41 @@ bool TableWidget_SQLITE3::write_to_db_table()
       for(int column=0;column<all_vertial_splitters.size();column++)
       {
         data_entry.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget()));
+          qDebug() << data_entry.at(column)->text();
         column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
       }
 
       //SELECT * FROM ENABLED_STUFF where rowid=2 LIMIT 1; -> use this to find target info for where, check that data is different to minimize writes
       //UPDATE ENABLED_STUFF SET status=42069 where rowid=2;
       //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
-
-      for(int i=0;i<data_entry.size();i++)
+      QString sql_statement="UPDATE "+this->table_name+" SET ";
+      for(int ii=0;ii<column_names.size();ii++)
       {
-        //table_column1=? and table_column2=? ...
-        QString table_name_string="";
-        for(int i=0;i<column_names.size();i++)
-          table_name_string.append(column_names.at(i)+"=? and ");
-
-        query.prepare("SELECT COUNT(*) FROM "+this->table_name+" WHERE "+table_name_string+"rowid=?;");
-        for(int j=0;j<column_names.size();j++)
-          query.addBindValue(data_entry.at(j)->get_base_text());
-        query.addBindValue(row);
-
-        query.exec();
-        query.next();
-        if(query.value(0).toInt()==1)
+        sql_statement.append(column_names.at(ii)+"=?");
+        if(ii==column_names.size()-1)
+          sql_statement.append(", and");
+        else if(ii==column_names.size())
         {
-          qDebug() << "found matching single entry, updating that entry";
-
-          QString string_for_set="";
-          for(int ii=0;ii<column_names.size();ii++)
-          {
-            string_for_set.append();
-            if(ii!=column_names.size()-1)
-              string_for_set.append(",");
-          }
-          query.prepare("UPDATE "+this->table_name+"set" " WHERE "+table_name_string+"rowid=?;");
-          for(int j=0;j<column_names.size();j++)
-            query.addBindValue(data_entry.at(j)->get_base_text());
-          query.addBindValue(row);
-          query.exec();
+          continue;
         }
         else
-        {
-          qDebug() << "found" << query.value(0).toInt() << "matching entry(ies) for data entry in row" << row << "not updating";
-        }
-        return true;
+          sql_statement.append(", ");
       }
-    }
-
-
-    //if there are mutliple of the same entry and where cannot be used, update whole table
-    if(write_whole_db == false)
-    {
-      qDebug() << "can rewrite only desired lines";
-    }
-    else
-    {
-      qDebug() << "must rewrite whole table";
-      query.exec("delete from "+this->table_name);
-      for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
+      sql_statement.append(" LIMIT 1 OFFSET "+QString::number(row-1)+";");
+      //}
+      qDebug() << sql_statement;
+      sqlite3_reset(stmt);
+      sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
+      for(int i=0;i<data_entry.size();i++)
       {
-        //statement: insert into table_name (category1, category2) values (?,?)
-        query.prepare("INSERT INTO "+this->table_name+" "+);
-        QString category_names="";
-        QString values="";
-        for(int column=0;column<all_vertial_splitters.size();column++)
-        {
-          category_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column).itemAt(0)->widget())->text());
-          values.append("?");
-          if(column!=all_vertial_splitters.size()-1)
-          {
-            category_names.append(",");
-            values.append(",");
-          }
-        }
+        qDebug() << "size =" << data_entry.size();
+        //sqlite3_bind_text(stmt, i,data_entry.at(i)->text().toStdString().c_str(), data_entry.at(i)->text().length(), SQLITE_STATIC);
+        //qDebug() << data_entry.at(i)->text();
       }
+      sqlite3_step(stmt);
+      sqlite3_finalize(stmt);
     }
-  }*/
+  }
 
   return true;
 }
