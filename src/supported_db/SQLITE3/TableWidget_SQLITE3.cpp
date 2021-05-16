@@ -60,6 +60,7 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
   {
     column_names.append(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))));
   }
+  sqlite3_finalize(stmt);
 
   //table_data->addLayout(table_data_header);
 
@@ -164,7 +165,6 @@ bool TableWidget_SQLITE3::write_to_db_table()
     sqlite3 *db;        // database connection
     int rc;             // return code
     char *errmsg;       // pointer to an error string
-    sqlite3_stmt *stmt;
 
     rc = sqlite3_open(db_path.toStdString().c_str(), &db);
 
@@ -179,12 +179,12 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
     for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
     {
-      QList<QLineEdit *> data_entry;
+      sqlite3_stmt *stmt;
+      QList<QString> data_entry_data;
       QList<QString> column_names;
       for(int column=0;column<all_vertial_splitters.size();column++)
       {
-        data_entry.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget()));
-          qDebug() << data_entry.at(column)->text();
+        data_entry_data.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget())->text());
         column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
       }
 
@@ -195,31 +195,29 @@ bool TableWidget_SQLITE3::write_to_db_table()
       for(int ii=0;ii<column_names.size();ii++)
       {
         sql_statement.append(column_names.at(ii)+"=?");
-        if(ii==column_names.size()-1)
-          sql_statement.append(", and");
-        else if(ii==column_names.size())
-        {
-          continue;
-        }
-        else
+        if(ii!=column_names.size()-1)
           sql_statement.append(", ");
       }
       sql_statement.append(" LIMIT 1 OFFSET "+QString::number(row-1)+";");
       //}
       qDebug() << sql_statement;
-      sqlite3_reset(stmt);
-      sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
-      for(int i=0;i<data_entry.size();i++)
+      //sqlite3_reset(stmt);
+      rc = sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
+      if (rc == SQLITE_OK)
+        qDebug("prepare work");
+      for(int i=0;i<data_entry_data.size();i++)
       {
-        qDebug() << "size =" << data_entry.size();
-        //sqlite3_bind_text(stmt, i,data_entry.at(i)->text().toStdString().c_str(), data_entry.at(i)->text().length(), SQLITE_STATIC);
-        //qDebug() << data_entry.at(i)->text();
+        sqlite3_bind_text(stmt, i+1,data_entry_data.at(i).toStdString().c_str(), -1, NULL);
+        qDebug() << "binding"<< data_entry_data.at(i) << "at index" << i+1;
       }
-      sqlite3_step(stmt);
-      sqlite3_finalize(stmt);
+      if (sqlite3_step(stmt) == SQLITE_DONE)
+        qDebug("success");
+      sqlite3_clear_bindings(stmt);
     }
-  }
 
+    //sqlite3_exec(db, ("CREATE TA"));
+    sqlite3_close(db);
+  }
   return true;
 }
 
