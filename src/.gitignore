@@ -1,1 +1,7 @@
 Makefile*
+.qmake.stash
+main
+a.out
+release/*
+debug/*
+object_script.TableViewer.*
