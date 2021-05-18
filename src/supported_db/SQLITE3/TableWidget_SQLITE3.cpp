@@ -137,9 +137,15 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
   QPoint globalPos = this->mapToGlobal(pos);
   QMenu myMenu;
   QAction *save = myMenu.addAction("save");
-    connect(save, &QAction::triggered, this, write_to_db_table);
+    connect(save, &QAction::triggered, this, [this](){
+      if(this->write_to_db_table()==true)
+        qInfo() << "writing to db succeeded";
+
+    });
   QAction *save_all = myMenu.addAction("save all");
-    connect(save_all, &QAction::triggered, this, write_to_db_all);
+    connect(save_all, &QAction::triggered, this, [this](){
+      //put qinfo notification
+    });
 
   myMenu.exec(globalPos);
   //if(action)
@@ -159,65 +165,63 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
   QString db_path = overview_widget->get_connection_info();
 
+  sqlite3 *db;        // database connection
+  int rc;             // return code
+  char *errmsg;       // pointer to an error string
+
+  rc = sqlite3_open(db_path.toStdString().c_str(), &db);
+
+  //QSqlDatabase db = QSqlDatabase::database(db_path);
+  //QSqlQuery query(QSqlDatabase::database(db_path));
+
+  //select entry, if theres only 1, we can use update
+  //int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
+  QList<QVBoxLayout *> all_vertial_splitters;
+  for(int i=0;i<this->master_splitter->count();i++)
+    all_vertial_splitters.append(this->master_splitter->widget(i)->findChild<QVBoxLayout *>());
+
+  for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
   {
-    bool write_whole_db=false;
-
-    sqlite3 *db;        // database connection
-    int rc;             // return code
-    char *errmsg;       // pointer to an error string
-
-    rc = sqlite3_open(db_path.toStdString().c_str(), &db);
-
-    //QSqlDatabase db = QSqlDatabase::database(db_path);
-    //QSqlQuery query(QSqlDatabase::database(db_path));
-
-    //select entry, if theres only 1, we can use update
-    //int data_entry_count = this->master_splitter->widget(0)->findChild<QVBoxLayout *>()->count()-1;
-    QList<QVBoxLayout *> all_vertial_splitters;
-    for(int i=0;i<this->master_splitter->count();i++)
-      all_vertial_splitters.append(this->master_splitter->widget(i)->findChild<QVBoxLayout *>());
-
-    for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
+    sqlite3_stmt *stmt;
+    QList<QString> data_entry_data;
+    QList<QString> column_names;
+    for(int column=0;column<all_vertial_splitters.size();column++)
     {
-      sqlite3_stmt *stmt;
-      QList<QString> data_entry_data;
-      QList<QString> column_names;
-      for(int column=0;column<all_vertial_splitters.size();column++)
-      {
-        data_entry_data.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget())->text());
-        column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
-      }
-
-      //SELECT * FROM ENABLED_STUFF where rowid=2 LIMIT 1; -> use this to find target info for where, check that data is different to minimize writes
-      //UPDATE ENABLED_STUFF SET status=42069 where rowid=2;
-      //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
-      QString sql_statement="UPDATE "+this->table_name+" SET ";
-      for(int ii=0;ii<column_names.size();ii++)
-      {
-        sql_statement.append(column_names.at(ii)+"=?");
-        if(ii!=column_names.size()-1)
-          sql_statement.append(", ");
-      }
-      sql_statement.append(" LIMIT 1 OFFSET "+QString::number(row-1)+";");
-      //}
-      qDebug() << sql_statement;
-      //sqlite3_reset(stmt);
-      rc = sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
-      if (rc == SQLITE_OK)
-        qDebug("prepare work");
-      for(int i=0;i<data_entry_data.size();i++)
-      {
-        sqlite3_bind_text(stmt, i+1,data_entry_data.at(i).toStdString().c_str(), -1, NULL);
-        qDebug() << "binding"<< data_entry_data.at(i) << "at index" << i+1;
-      }
-      if (sqlite3_step(stmt) == SQLITE_DONE)
-        qDebug("success");
-      sqlite3_clear_bindings(stmt);
+      data_entry_data.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget())->text());
+      column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
     }
 
-    //sqlite3_exec(db, ("CREATE TA"));
-    sqlite3_close(db);
+    //SELECT * FROM ENABLED_STUFF LIMIT 1 OFFSET 1; -> use this to find target info for where, check that data is different to minimize writes
+    //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
+    QString sql_statement="UPDATE "+this->table_name+" SET ";
+    for(int ii=0;ii<column_names.size();ii++)
+    {
+      sql_statement.append(column_names.at(ii)+"=?");
+      if(ii!=column_names.size()-1)
+        sql_statement.append(", ");
+    }
+    sql_statement.append(" LIMIT 1 OFFSET ?;");
+    qDebug() << sql_statement;
+
+    rc = sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
+    if (rc == SQLITE_OK)
+      qDebug("prepare work");
+    else
+      qDebug("prepare failed");
+
+    for(int i=0;i<data_entry_data.size();i++)
+    {
+      sqlite3_bind_text(stmt, i+1,data_entry_data.at(i).toStdString().c_str(), -1, NULL);
+      qDebug() << "binding"<< data_entry_data.at(i) << "at index" << i+1;
+    }
+    sqlite3_bind_text(stmt, data_entry_data.size()+1, std::to_string(data_entry_data.size()).c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_DONE)
+      qDebug("success");
+    sqlite3_clear_bindings(stmt);
   }
+
+  sqlite3_close(db);  
   return true;
 }
 
