@@ -138,6 +138,7 @@ void Navigator::Add_db_slot_SQLITE()
         table_view_qstackedwidget->setCurrentWidget(target_widget);
       }
     });
+    sqlite3_close(db);
   }
 
   else

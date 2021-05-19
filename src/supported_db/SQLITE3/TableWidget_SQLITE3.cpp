@@ -211,14 +211,17 @@ bool TableWidget_SQLITE3::write_to_db_table()
 
     for(int i=0;i<data_entry_data.size();i++)
     {
-      sqlite3_bind_text(stmt, i+1,data_entry_data.at(i).toStdString().c_str(), -1, NULL);
+      std::string s = data_entry_data.at(i).toStdString();
+      sqlite3_bind_text(stmt, i+1,s.c_str(), -1, SQLITE_TRANSIENT);
       qDebug() << "binding"<< data_entry_data.at(i) << "at index" << i+1;
     }
-    sqlite3_bind_text(stmt, data_entry_data.size()+1, std::to_string(data_entry_data.size()).c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, data_entry_data.size()+1, std::to_string(data_entry_data.size()).c_str(), -1, NULL);
 
     if (sqlite3_step(stmt) == SQLITE_DONE)
       qDebug("success");
+
     sqlite3_clear_bindings(stmt);
+    sqlite3_finalize(stmt);
   }
 
   sqlite3_close(db);  
