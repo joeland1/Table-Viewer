@@ -180,50 +180,57 @@ bool TableWidget_SQLITE3::write_to_db_table()
   for(int i=0;i<this->master_splitter->count();i++)
     all_vertial_splitters.append(this->master_splitter->widget(i)->findChild<QVBoxLayout *>());
 
+  QList<QString> column_names;
+  for(int column=0;column<all_vertial_splitters.size();column++)
+    column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
+
+  //SELECT * FROM ENABLED_STUFF LIMIT 1 OFFSET 1; -> use this to find target info for where, check that data is different to minimize writes
+  //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
+  QString sql_statement="UPDATE "+this->table_name+" SET ";
+  for(int ii=0;ii<column_names.size();ii++)
+  {
+    sql_statement.append(column_names.at(ii)+"=?");
+    if(ii!=column_names.size()-1)
+      sql_statement.append(", ");
+  }
+  sql_statement.append(" LIMIT 1 OFFSET ?;");
+  qDebug() << sql_statement;
+
+  sqlite3_stmt *stmt;
+  rc = sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
+  if (rc == SQLITE_OK)
+    qDebug("prepare work");
+  else
+    qDebug("prepare failed");
+
   for(int row=1;row<all_vertial_splitters.at(0)->count();row++)
   {
-    sqlite3_stmt *stmt;
     QList<QString> data_entry_data;
-    QList<QString> column_names;
+    
     for(int column=0;column<all_vertial_splitters.size();column++)
-    {
       data_entry_data.append(dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(row)->widget())->text());
-      column_names.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column)->itemAt(0)->widget())->text());
-    }
 
-    //SELECT * FROM ENABLED_STUFF LIMIT 1 OFFSET 1; -> use this to find target info for where, check that data is different to minimize writes
-    //query.exec("UPDATE ENABLED_STUFF SET cog_name='limitwork2' OFFSET 1;");
-    QString sql_statement="UPDATE "+this->table_name+" SET ";
-    for(int ii=0;ii<column_names.size();ii++)
+    for(int entry_index=0;entry_index<data_entry_data.size();entry_index++)
     {
-      sql_statement.append(column_names.at(ii)+"=?");
-      if(ii!=column_names.size()-1)
-        sql_statement.append(", ");
+      std::string s = data_entry_data.at(entry_index).toStdString();
+      if(sqlite3_bind_text(stmt, entry_index+1,s.c_str(), -1, SQLITE_TRANSIENT) == SQLITE_OK)
+        qDebug("binding succeded");
+      else
+        qDebug("binding failed");
+      qDebug() << "bound"<< data_entry_data.at(entry_index) << "at index" << entry_index+1;
     }
-    sql_statement.append(" LIMIT 1 OFFSET ?;");
-    qDebug() << sql_statement;
-
-    rc = sqlite3_prepare_v3(db, sql_statement.toStdString().c_str(), -1, 0, &stmt, NULL);
-    if (rc == SQLITE_OK)
-      qDebug("prepare work");
-    else
-      qDebug("prepare failed");
-
-    for(int i=0;i<data_entry_data.size();i++)
-    {
-      std::string s = data_entry_data.at(i).toStdString();
-      sqlite3_bind_text(stmt, i+1,s.c_str(), -1, SQLITE_TRANSIENT);
-      qDebug() << "binding"<< data_entry_data.at(i) << "at index" << i+1;
-    }
-    sqlite3_bind_text(stmt, data_entry_data.size()+1, std::to_string(data_entry_data.size()).c_str(), -1, NULL);
+    sqlite3_bind_int(stmt, data_entry_data.size()+1, data_entry_data.size());
 
     if (sqlite3_step(stmt) == SQLITE_DONE)
       qDebug("success");
+    else
+      qDebug(sqlite3_errmsg(db));
 
     sqlite3_clear_bindings(stmt);
-    sqlite3_finalize(stmt);
+    sqlite3_reset(stmt);
   }
 
+  sqlite3_finalize(stmt);
   sqlite3_close(db);  
   return true;
 }
