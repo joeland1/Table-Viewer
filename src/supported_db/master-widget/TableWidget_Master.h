@@ -6,11 +6,13 @@ class TableWidget_Master : public QWidget {
 
   public:
     TableWidget_Master(QWidget *parent = nullptr);
+    virtual bool refresh_tables();
     std::string get();
 
-  private slots:
-  	virtual bool refresh_tables();
+  public slots:
     virtual bool write_to_db_table();
+
+  private slots:
     virtual bool write_to_db_all();
 
   private:

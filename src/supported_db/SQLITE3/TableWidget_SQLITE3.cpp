@@ -282,11 +282,11 @@ bool TableWidget_SQLITE3::refresh_tables()
 
   //SELECT cat, cat2, cat3 from TABLENAME;
   QString statement = "SELECT ";
-  for(int column_index=0;i<all_vertial_splitters.count();column_index++)
+  for(int column_index=0;column_index<all_vertial_splitters.count();column_index++)
   {
     qDebug("in for ");
     statement.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column_index)->itemAt(0)->widget())->text());
-    if(i!=all_vertial_splitters.count()-1)
+    if(column_index!=all_vertial_splitters.count()-1)
         statement.append(",");
   }
   statement.append(" from "+this->table_name+";");

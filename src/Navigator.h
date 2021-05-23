@@ -14,6 +14,8 @@ class Navigator : public QWidget {
 
   private slots:
     void Add_db_slot_SQLITE();
+    bool refresh_table_from_navigator();
+    bool save_table_from_navigator();
   private:
     QStackedWidget *table_view_qstackedwidget;
     QTreeWidget *navigator_tree_widget;

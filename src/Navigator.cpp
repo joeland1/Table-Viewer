@@ -27,6 +27,8 @@
 #include <QSplitter>
 #include <QFileDialog>
 
+#include <QShortcut>
+
 #include "libs/SQLITE3/sqlite3.h"
 Navigator::Navigator(QWidget *parent):QWidget(parent)
 {
@@ -69,6 +71,16 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->addWidget(split);
     layout->setMenuBar(master_menu);
     setLayout(layout);
+
+    /*QAction *refresh_action = new QAction();
+      connect(refresh_action, &QAction::triggered, this, &Navigator::refresh_table_from_navigator);
+      refresh_action->setShortcut(tr("CTRL+Q"));*/
+
+    QShortcut *refresh_shortcut = new QShortcut(QKeySequence("Ctrl+r"), this);
+      connect(refresh_shortcut, QShortcut::activated, this, Navigator::refresh_table_from_navigator);
+
+    QShortcut *save_shortcut = new QShortcut(QKeySequence("Ctrl+s"), this);
+      connect(save_shortcut, QShortcut::activated, this, Navigator::save_table_from_navigator);
 }
 
 void Navigator::Add_db_slot_SQLITE()
@@ -162,3 +174,15 @@ QStackedWidget* Navigator::get_table_view_qstackedwidget()
   return this->table_view_qstackedwidget;
 }
 
+
+bool Navigator::refresh_table_from_navigator()
+{
+  qDebug("nav refresh");
+  return dynamic_cast<TableWidget_Master *>(this->table_view_qstackedwidget->currentWidget())->refresh_tables();
+};
+
+bool Navigator::save_table_from_navigator()
+{
+  qDebug("nav save");
+  return dynamic_cast<TableWidget_Master *>(this->table_view_qstackedwidget->currentWidget())->write_to_db_table();
+};

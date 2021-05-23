@@ -13,6 +13,7 @@ class Overview_SQLITE3 : public Overview_Master {
     Overview_SQLITE3(QString path = nullptr,QWidget *parent = nullptr);
     ~Overview_SQLITE3();
     QString get_connection_info();
+    
   public slots:
     bool write_to_db(QList<QWidget *> table_widgets);
   private slots:
