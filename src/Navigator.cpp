@@ -38,6 +38,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->setSpacing(0);
 
   navigator_tree_widget = new QTreeWidget();
+    navigator_tree_widget->setHeaderHidden(true);
     navigator_tree_widget->setFrameShape(QFrame::NoFrame);
     navigator_tree_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(navigator_tree_widget, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column)
@@ -54,8 +55,10 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       add_menu->addAction(add_db_SQLITE);
 
   table_view_qstackedwidget = new QStackedWidget;
-  table_view_qstackedwidget->addWidget(new Welcome);
+  Welcome *wecome_widget = new Welcome();
+  table_view_qstackedwidget->addWidget(wecome_widget);
     table_view_qstackedwidget->setContentsMargins(0,0,0,0);
+    table_view_qstackedwidget->setCurrentWidget(wecome_widget);
 
     /*layout->addWidget(navigator);
     layout->addWidget(table_view_qstackedwidget);
@@ -71,6 +74,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->addWidget(split);
     layout->setMenuBar(master_menu);
     setLayout(layout);
+      split->setSizes({0});
 
     /*QAction *refresh_action = new QAction();
       connect(refresh_action, &QAction::triggered, this, &Navigator::refresh_table_from_navigator);
