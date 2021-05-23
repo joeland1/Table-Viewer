@@ -17,6 +17,11 @@ std::string TableWidget_Master::get()
   return name;
 }
 
+bool TableWidget_Master::refresh_tables()
+{
+	return false;
+}
+
 bool TableWidget_Master::write_to_db_table()
 {
   return false;

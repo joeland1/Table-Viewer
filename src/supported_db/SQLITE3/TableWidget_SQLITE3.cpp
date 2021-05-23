@@ -147,6 +147,12 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
       //put qinfo notification
     });
 
+  QAction *refresh = myMenu.addAction("refresh");
+    connect(refresh, &QAction::triggered, this, [this](){
+      if(this->refresh_tables()==true)
+        qInfo("reloaded table successfully");
+    });
+
   myMenu.exec(globalPos);
   //if(action)
   //  action->trigger();
@@ -246,5 +252,65 @@ bool TableWidget_SQLITE3::write_to_db_all()
   Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
   overview_widget->write_to_db(all_tables);
 
+  return true;
+}
+
+bool TableWidget_SQLITE3::refresh_tables()
+{
+  qDebug("starting refresh_tables");
+  sqlite3 *db;        // database connection
+  int rc;             // return code
+  char *errmsg;       // pointer to an error string
+  sqlite3_stmt *stmt;
+
+  QTreeWidgetItem *overview_tab = dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_selected_tab()->parent();
+  Overview_SQLITE3 *overview_widget = dynamic_cast<Overview_SQLITE3 *>(dynamic_cast<Navigator *>(this->parentWidget()->parentWidget()->parentWidget())->get_table_view_qstackedwidget()->findChild<QWidget *>(overview_tab->data(1,Qt::UserRole).toString()));
+
+  QString db_path = overview_widget->get_connection_info();
+
+  if(sqlite3_open(db_path.toStdString().c_str(), &db) != SQLITE_OK)
+  {
+    qWarning() << "Error opening db file at:\""+db_path+"\"";
+    qDebug(sqlite3_errmsg(db));
+    return false;
+  }
+
+  QList<QVBoxLayout *> all_vertial_splitters;
+  for(int i=0;i<this->master_splitter->count();i++)
+    all_vertial_splitters.append(this->master_splitter->widget(i)->findChild<QVBoxLayout *>());
+
+
+  //SELECT cat, cat2, cat3 from TABLENAME;
+  QString statement = "SELECT ";
+  for(int column_index=0;i<all_vertial_splitters.count();column_index++)
+  {
+    qDebug("in for ");
+    statement.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column_index)->itemAt(0)->widget())->text());
+    if(i!=all_vertial_splitters.count()-1)
+        statement.append(",");
+  }
+  statement.append(" from "+this->table_name+";");
+  qDebug() << statement;
+
+  if(sqlite3_prepare_v3(db, statement.toStdString().c_str(), -1, 0, &stmt, NULL) != SQLITE_OK)
+  {
+    //add code to clear all teh stuffs from memory
+    //"could not bind statement:\""+statement+"\""
+    qWarning() << "could not bind statement:" << statement ;
+    return false;
+  }
+
+  int ctr = 1;
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    //QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)))
+    //if(ctr>=all_vertial_splitters.at(0)->count())
+    for(int column=0;column<all_vertial_splitters.size();column++)
+    {
+      QLineEdit *edit_box = dynamic_cast<QLineEdit *>(all_vertial_splitters.at(column)->itemAt(ctr)->widget());
+      edit_box->setText(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, column))));
+    }
+    ctr++;
+  }
   return true;
 }

@@ -16,6 +16,7 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
 
   public slots:
     bool write_to_db_table();
+    bool refresh_tables();
     //bool set_login();
   private slots:
     //bool load_data();
