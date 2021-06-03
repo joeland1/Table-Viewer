@@ -28,6 +28,7 @@
 #include <QFileDialog>
 
 #include <QShortcut>
+#include <QHeaderView>
 
 #include "libs/SQLITE3/sqlite3.h"
 Navigator::Navigator(QWidget *parent):QWidget(parent)
@@ -38,7 +39,9 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->setSpacing(0);
 
   navigator_tree_widget = new QTreeWidget();
-    navigator_tree_widget->setHeaderHidden(true);
+    //navigator_tree_widget->setHeaderHidden(true);
+    navigator_tree_widget->setHeaderLabel("Databases");
+    navigator_tree_widget->header()->setDefaultAlignment(Qt::AlignCenter);
     navigator_tree_widget->setFrameShape(QFrame::NoFrame);
     navigator_tree_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(navigator_tree_widget, &QTreeWidget::itemClicked,this, [this](QTreeWidgetItem *item, int column)
@@ -74,7 +77,7 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
     layout->addWidget(split);
     layout->setMenuBar(master_menu);
     setLayout(layout);
-      split->setSizes({0});
+      split->setSizes({this->width()/3,this->width()/1.5});
 
     /*QAction *refresh_action = new QAction();
       connect(refresh_action, &QAction::triggered, this, &Navigator::refresh_table_from_navigator);

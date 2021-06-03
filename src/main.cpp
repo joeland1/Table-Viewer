@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
 
   Navigator window;
 
-  window.resize(250, 150);
+  window.resize(300, 150);
   window.show();
 
   return app.exec();

@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QString>
 #include <QSplitter>
+#include <QLineEdit>
 
 class TableWidget_SQLITE3 : public TableWidget_Master {
 
@@ -17,14 +18,15 @@ class TableWidget_SQLITE3 : public TableWidget_Master {
   public slots:
     bool write_to_db_table();
     bool refresh_tables();
-    //bool set_login();
+
   private slots:
-    //bool load_data();
     void display_ctx_menu_qwidget(const QPoint &);
     void display_ctx_menu_qpushbutton(const QPoint &);
+    void display_ctx_menu_qlineedit(QVBoxLayout *, QLineEdit *, const QPoint &);
     bool write_to_db_all();
 
   private:
+    void mouseDoubleClickEvent(QMouseEvent *);
     QSplitter *master_splitter;
     QString table_name;
 };

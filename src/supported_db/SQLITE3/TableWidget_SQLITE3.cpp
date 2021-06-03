@@ -5,9 +5,6 @@
 #include <QLineEdit>
 #include <QGridLayout>
 
-//sququery and sqldb should be removed soon
-//#include <QSqlQuery>
-//#include <QSqlDatabase>
 #include <QString>
 
 #include <QMessageBox>
@@ -19,8 +16,6 @@
 
 #include <QSplitter>
 
-//#include <QSqlRecord>
-
 #include <QAction>
 #include <QMenu>
 #include <QLabel>
@@ -29,6 +24,7 @@
 #include <QTreeWidgetItem>
 
 #include <QtDebug>
+#include <QMouseEvent>
 
 #include "libs/SQLITE3/sqlite3.h"
 TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWidget *parent):TableWidget_Master(parent)
@@ -112,6 +108,10 @@ TableWidget_SQLITE3::TableWidget_SQLITE3(QString table_name,QString db_path, QWi
     for(int i=0;i<column_names.size();i++)
     {
       QLineEdit *data_entry = new QLineEdit(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
+      data_entry->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(data_entry, &QLineEdit::customContextMenuRequested, this, [=](const QPoint &pos){
+          this->display_ctx_menu_qlineedit(all_columns.at(i), data_entry, pos);
+        });
       all_columns.at(i)->addWidget(data_entry);
     }
   }
@@ -140,7 +140,6 @@ void TableWidget_SQLITE3::display_ctx_menu_qwidget(const QPoint &pos)
     connect(save, &QAction::triggered, this, [this](){
       if(this->write_to_db_table()==true)
         qInfo() << "writing to db succeeded";
-
     });
   QAction *save_all = myMenu.addAction("save all");
     connect(save_all, &QAction::triggered, this, [this](){
@@ -284,7 +283,6 @@ bool TableWidget_SQLITE3::refresh_tables()
   QString statement = "SELECT ";
   for(int column_index=0;column_index<all_vertial_splitters.count();column_index++)
   {
-    qDebug("in for ");
     statement.append(dynamic_cast<QPushButton *>(all_vertial_splitters.at(column_index)->itemAt(0)->widget())->text());
     if(column_index!=all_vertial_splitters.count()-1)
         statement.append(",");
@@ -312,5 +310,44 @@ bool TableWidget_SQLITE3::refresh_tables()
     }
     ctr++;
   }
+
+  for(int i=0;i<all_vertial_splitters.size();i++)
+  {
+    while(all_vertial_splitters.at(i)->count()>ctr)
+    {
+      QWidget *extranious_box = all_vertial_splitters.at(i)->takeAt(all_vertial_splitters.at(i)->count()-1)->widget();
+      delete extranious_box;
+    }
+  }
+
   return true;
 }
+
+void TableWidget_SQLITE3::mouseDoubleClickEvent(QMouseEvent *e)
+{
+  for(int i=0;i<this->master_splitter->count();i++)
+  {
+    QVBoxLayout *layout = this->master_splitter->widget(i)->findChild<QVBoxLayout *>();
+    QLineEdit *adding_line = new QLineEdit();
+
+    //adding_line->setContextMenuPolicy(Qt::CustomContextMenu);
+     // connect(adding_line, &QLineEdit::customContextMenuRequested, this, TableWidget_SQLITE3::display_ctx_menu_qlineedit);
+    layout->addWidget(adding_line);
+  }
+}
+
+void TableWidget_SQLITE3::display_ctx_menu_qlineedit(QVBoxLayout *column_layout, QLineEdit *clicked_QLineEdit, const QPoint &pos)
+{
+  QPoint globalPos = clicked_QLineEdit->mapToGlobal(pos);
+  QMenu *myMenu = clicked_QLineEdit->createStandardContextMenu();
+  myMenu->addAction("Remove entry");
+  myMenu->exec(globalPos);
+
+  int index = column_layout->indexOf(dynamic_cast<QWidget*>(clicked_QLineEdit));
+
+  QList<QVBoxLayout *> all_columns = this->parentWidget()->findChildren();
+  for(int i=0;i<;i++)
+
+  delete myMenu;
+}
+
