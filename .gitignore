@@ -1,0 +1,10 @@
+src/Makefile*
+src/.qmake.stash
+src/main
+src/a.out
+src/release/*
+src/debug/*
+src/object_script.TableViewer.*
+src/*.o
+src/debug.log
+src/moc_*.cpp

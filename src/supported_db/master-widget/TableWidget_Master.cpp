@@ -1,4 +1,4 @@
-#include "supported_db\master-widget\TableWidget_Master.h"
+#include "TableWidget_Master.h"
 
 #include <QWidget>
 #include <QLabel>

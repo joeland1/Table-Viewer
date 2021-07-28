@@ -1,4 +1,4 @@
-#include "supported_db\master-widget\Overview_Master.h"
+#include "Overview_Master.h"
 
 #include <QWidget>
 #include <sstream>

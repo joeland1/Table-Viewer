@@ -84,10 +84,10 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
       refresh_action->setShortcut(tr("CTRL+Q"));*/
 
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence("Ctrl+r"), this);
-      connect(refresh_shortcut, QShortcut::activated, this, Navigator::refresh_table_from_navigator);
+      //connect(refresh_shortcut, QShortcut::activated, this, Navigator::refresh_table_from_navigator);
 
     QShortcut *save_shortcut = new QShortcut(QKeySequence("Ctrl+s"), this);
-      connect(save_shortcut, QShortcut::activated, this, Navigator::save_table_from_navigator);
+      //connect(save_shortcut, QShortcut::activated, this, Navigator::save_table_from_navigator);
 }
 
 void Navigator::Add_db_slot_SQLITE()
