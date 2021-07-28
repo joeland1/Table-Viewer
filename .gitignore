@@ -8,3 +8,4 @@ src/object_script.TableViewer.*
 src/*.o
 src/debug.log
 src/moc_*.cpp
+src/test.db

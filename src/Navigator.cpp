@@ -5,8 +5,6 @@
 
 #include <QHBoxLayout>
 #include <QWidget>
-//#include <QSqlDatabase>
-//#include <QSqlQuery>
 
 #include <QMessageBox>
 
@@ -81,13 +79,13 @@ Navigator::Navigator(QWidget *parent):QWidget(parent)
 
     /*QAction *refresh_action = new QAction();
       connect(refresh_action, &QAction::triggered, this, &Navigator::refresh_table_from_navigator);
-      refresh_action->setShortcut(tr("CTRL+Q"));*/
+      refresh_action->setShortcut(tr("Ctrl+r"));*/
 
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence("Ctrl+r"), this);
-      //connect(refresh_shortcut, QShortcut::activated, this, Navigator::refresh_table_from_navigator);
+      connect(refresh_shortcut, &QShortcut::activated, this, &Navigator::refresh_table_from_navigator);
 
     QShortcut *save_shortcut = new QShortcut(QKeySequence("Ctrl+s"), this);
-      //connect(save_shortcut, QShortcut::activated, this, Navigator::save_table_from_navigator);
+      connect(save_shortcut, &Shortcut::activated, this, &Navigator::save_table_from_navigator);
 }
 
 void Navigator::Add_db_slot_SQLITE()
