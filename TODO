@@ -1,0 +1,3 @@
+Issues
+    - Will add over tab if not valid sqlite3
+    - Truncating empty entries
