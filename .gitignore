@@ -9,3 +9,5 @@ src/*.o
 src/debug.log
 src/moc_*.cpp
 src/test.db
+src/TableViewer.app
+.DS_Store
